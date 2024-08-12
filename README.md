@@ -3,10 +3,10 @@
 This repo contains a MERN stack mobile application: using MongoDB Atlas and Expo
 
 ## Pre-reqs
--[Node.js](https://nodejs.org/en/download/package-manager) **Node.JS v20.16.0(LTS)**
-    -Execute given commands in Windows PowerShell (have not researched complications w/ macOS)
--[MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database) Account
--[Expo CLI](Expo APP on iPhone) APP
+-[Node.js](https://nodejs.org/en/download/package-manager) **Node.JS v20.16.0(LTS)**  
+    -Execute given commands in Windows PowerShell (have not researched complications w/ macOS)  
+-[MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database) Account  
+-[Expo CLI](Expo APP on iPhone) APP  
 
 ## Setup
 1. Clone the repo
