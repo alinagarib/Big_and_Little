@@ -10,13 +10,13 @@ This repo contains a MERN stack mobile application: using MongoDB Atlas and Expo
 ## Setup
 1. Clone the repo
 2. Create '.env' file
-    -In root directory, copy '.env.example,' into a new file '.env.'
-    -Filling in your MongoDB Atlas URI in the spare space in '.env' (communicate with your scrum masters at this point!)
+    </br> -In root directory, copy '.env.example,' into a new file '.env.'
+    </br>-Filling in your MongoDB Atlas URI in the spare space in '.env' (communicate with your scrum masters at this point!)
 2. Install backend dependencies:
-    -In terminal, run: npm install
+    </br>-In terminal, run: npm install
 3. Install mobile dependencies:
-    -In terminal, cd into mobile
-    -Run: npm install
+    </br>-In terminal, cd into mobile
+    </br>-Run: npm install
 4. Have Expo Go app running on your phone!
 
 ## Running
