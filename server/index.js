@@ -26,6 +26,13 @@ app.get('/', (req, res) => {
   res.send('Hello from the backend!');
 });
 
+// Auth Routes
+const authRoutes = require('./auth');
+app.use(authRoutes);
+
+// Protected Routes
+// Use authMiddleware
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
