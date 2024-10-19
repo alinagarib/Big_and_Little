@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ const MONGO_URI = process.env.MONGO_URI;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI, {
@@ -31,7 +33,12 @@ const authRoutes = require('./auth');
 app.use(authRoutes);
 
 // Protected Routes
-// Use authMiddleware
+/* Use authMiddleware
+const verifyToken = require('./authMiddleware');
+app.get('/protected', verifyToken, (req, res) => {
+    res.status(200).send('Accessed protected route!');
+});
+*/
 
 // Start Server
 app.listen(PORT, () => {

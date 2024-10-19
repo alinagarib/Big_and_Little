@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
     // Require JWT token
-    const token = req.header('Authorization');
+    let token = req.cookies['Authorization'];
     if (token === undefined) {
         res.status(401).send('Cannot access resource, no JWT provided!');
         return;

@@ -70,7 +70,12 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
             expiresIn: "7d"
         });
-        res.status(200).send(token);
+        res.cookie('Authorization', `Bearer ${token}`, {
+            httpOnly: true,
+            maxAge: 6 * 24 * 60 * 60 * 1000,
+            secure: true
+        });
+        res.status(200).send();
     } catch (err) { // Server error (Probably a Mongoose connection issue)
         res.status(500).send();
     }
