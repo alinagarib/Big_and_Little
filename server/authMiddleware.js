@@ -8,13 +8,14 @@ const verifyToken = (req, res, next) => {
         return;
     }
     if (!token.startsWith("Bearer ")) {
-        res.status(401).send('Cannot access resource, incorrect token format!')
+        res.status(401).send('Cannot access resource, incorrect token format!');
+        return;
     }
     token = token.substring(7);
 
     // Verify JWT
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         req.username = decoded.username;
         next();
     } catch (err) {
