@@ -57,8 +57,11 @@ const loginUser = async (req, res) => {
     const { username, password } = req.body;
     
     try {
-        // Check if user exists in DB
-        const user = await User.findOne({ username });
+        // Check if user with username or email exists in DB
+        const user = await User.findOne({
+            $or: [{ username: username }, { email: username }]
+        });
+        
         if (user === null) {
             res.status(400).send(`Cannot login user, user with username ${username} does not exist!`);
             return;
