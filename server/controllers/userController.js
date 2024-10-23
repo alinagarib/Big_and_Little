@@ -1,13 +1,14 @@
 const express = require('express');
-const router = express.Router();
-
-const User = require('./models/User');
+const User = require('../models/User');
 const { Error } = require('mongoose');
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-router.post('/register', async (req, res) => {
+// @desc Register new user
+// @route POST /register
+// @access Public
+const registerUser = async (req, res) => {
     // Parse request body and create hashed password
     const { username, email, password } = req.body;
 
@@ -29,6 +30,7 @@ router.post('/register', async (req, res) => {
             res.status(400).send('Cannot register new user, email already exists!');
             return;
         }
+
         if (await User.findOne({ username }) !== null) {
             res.status(400).send('Cannot register new user, username already exists!');
             return;
@@ -36,17 +38,22 @@ router.post('/register', async (req, res) => {
 
         // Save new user to DB
         await user.save();
-        res.status(200).send();
-    } catch (err) {
+        res.status(200).json({ message: `New user '${username}' created.` });
+    } 
+    catch (err) {
         if (err instanceof Error.ValidationError) { // User did not pass schema validation
             res.status(400).send(err.message);
-        } else { // Server error (Probably a Mongoose connection issue)
+        } 
+        else { // Server error (Probably a Mongoose connection issue)
             res.status(500).send();
         }
     }
-});
+}
 
-router.post('/login', async (req, res) => {
+// @desc Login existing user
+// @route POST /login
+// @access Public
+const loginUser = async (req, res) => {
     const { username, password } = req.body;
     
     try {
@@ -67,18 +74,22 @@ router.post('/login', async (req, res) => {
         const payload = {
             username
         }
+
         const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
             expiresIn: "7d"
         });
+
         res.cookie('Authorization', `Bearer ${token}`, {
             httpOnly: true,
             maxAge: 6 * 24 * 60 * 60 * 1000,
             secure: true
         });
-        res.status(200).send();
-    } catch (err) { // Server error (Probably a Mongoose connection issue)
+
+        res.status(200).json({ message: `User '${username}' logged in.` });
+    } 
+    catch (err) { // Server error (Probably a Mongoose connection issue)
         res.status(500).send();
     }
-});
+}
 
-module.exports = router;
+module.exports = { registerUser, loginUser };
