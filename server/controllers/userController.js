@@ -11,6 +11,10 @@ const jwt = require('jsonwebtoken');
 const registerUser = async (req, res) => {
     // Parse request body and create hashed password
     const { username, email, password } = req.body;
+    if (username === undefined || email === undefined) {
+        res.status(400).send('Cannot register new user, no username and/or email was provided!');
+        return;
+    }
 
     if (password === undefined) {
         res.status(400).send('Cannot register new user, no password was provided!');
@@ -54,13 +58,20 @@ const registerUser = async (req, res) => {
 // @route POST /login
 // @access Public
 const loginUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { userID, password } = req.body;
+    if (userID === undefined || password === undefined) {
+        res.status(400).send('Cannot login user, please provide a userID and password!');
+        return;
+    }
     
     try {
-        // Check if user exists in DB
-        const user = await User.findOne({ username });
+        // Check if user with username or email exists in DB
+        const user = await User.findOne({
+            $or: [{ username: userID }, { email: userID }]
+        });
+        
         if (user === null) {
-            res.status(400).send(`Cannot login user, user with username ${username} does not exist!`);
+            res.status(400).send(`Cannot login user, user with username/email ${username} does not exist!`);
             return;
         }
 
@@ -72,7 +83,7 @@ const loginUser = async (req, res) => {
 
         // Issue JWT
         const payload = {
-            username
+            username: user.username
         }
 
         const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
@@ -85,7 +96,7 @@ const loginUser = async (req, res) => {
             secure: true
         });
 
-        res.status(200).json({ message: `User '${username}' logged in.` });
+        res.status(200).json({ message: `User '${user.username}' logged in.` });
     } 
     catch (err) { // Server error (Probably a Mongoose connection issue)
         res.status(500).send();
