@@ -90,7 +90,7 @@ const loginUser = async (req, res) => {
         });
         
         if (user === null) {
-            return res.status(400).send(`Cannot login user, user with username/email ${username} does not exist!`);
+            return res.status(400).send(`Cannot login user, user with username/email ${userID} does not exist!`);
         }
 
         // Check if password is correct
