@@ -10,8 +10,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // TODO: Hash password using encryption library (bcryptjs ?)
-    // NOTE: This should be done at the controller method (endpoint) for the User post request, when the password is initially stored.
     password: { 
         type: String,
         required: true
