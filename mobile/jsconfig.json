@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@components/*": ["components/*"],
-      "@middleware/*": ["../server/middleware/*"]
+      "@middleware/*": ["../server/middleware/*"],
+      "@assets/*": ["assets/*"]
     }
   }
 }
