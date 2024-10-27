@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MobileAPP",
-    "slug": "MobileAPP",
+    "name": "Big and Little",
+    "slug": "Big_and_Little",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,6 +22,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/inter/Inter_400Regular.ttf"
+          ]
+        }
+      ],
+      "expo-router"
+    ],
+    "scheme": "big_and_little_scheme"
   }
 }
