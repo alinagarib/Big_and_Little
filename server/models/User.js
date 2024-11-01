@@ -2,6 +2,15 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    year: {
+        type: String,
+        required: true,
+        enum: ['Freshman', 'Sophomore', 'Junior', 'Senior']
+    },
     username: {
         type: String,
         required: true
@@ -20,7 +29,7 @@ const userSchema = new mongoose.Schema({
     }],
     // TODO: Determine user preferences (not necessary at account creation)
     // NOTE: User preferences may be better stored as an object e.g. { prefID: <int ID>, userPref: <bool pref> }
-    prefences: [{
+    preferences: [{
         type: String,
         required: false
     }]
