@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const {
+    validateYear,
     validateUsername,
     validateEmail,
     validatePassword,
@@ -15,7 +16,21 @@ const {
 // @access Public
 const registerUser = async (req, res) => {
     // Parse request body and create hashed password
-    const { username, email, password } = req.body;
+    const { name, year, username, email, password } = req.body;
+    if (name === undefined) {
+        return res.status(400).send('Cannot register new user, no name was provided!');
+    }
+
+    if (year === undefined) {
+        return res.status(400).send('Cannot register new user, no year was provided!');
+    }
+    // Validate year
+    const validYear = validateYear(year);
+    if (!validYear.valid) {
+        return res.status(400).send(validYear.reason);
+    }
+
+
     if (username === undefined || email === undefined) {
         return res.status(400).send('Cannot register new user, no username and/or email was provided!');
     }
@@ -46,6 +61,8 @@ const registerUser = async (req, res) => {
 
     try {
         const user = new User({
+            name,
+            year,
             username,
             email,
             password: hashedPassword
