@@ -82,14 +82,16 @@ export default function Login() {
           setText={setUserID}
           placeholder="albert/albert@ufl.edu"
           autoComplete="username"
-          autoCorrect={false} />
+          autoCorrect={false}
+          required />
         <StyledTextInput
           field="Password"
           value={password}
           setText={setPassword}
           placeholder="supersecretpassword"
           autoComplete="current-password"
-          autoCorrect={false} />
+          autoCorrect={false}
+          required />
         <StyledButton text="Sign In" onClick={loginUser} />
         <View style={styles.bottom}>
           <Pressable

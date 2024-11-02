@@ -84,7 +84,8 @@ export default function Register() {
             setText={setName}
             placeholder="Albert Gator"
             autoComplete="name"
-            autocorrect={false} />
+            autocorrect={false}
+            required />
           <StyledTextInput
             field="Year"
             value={year}

@@ -11,8 +11,9 @@ import { TouchableWithoutFeedback, Keyboard, View, Text, TextInput, StyleSheet }
     placeholder: Placeholder for text input
     autoComplete: Should text input autocomplete
     autoCorrect: Should text input autocorrect
-    helperText: Helper text for text input,
+    helperText: Helper text for text input
     validate: Function used to validate input
+    required: If field is required
   }
   (See https://reactnative.dev/docs/textinput)
 */
@@ -30,6 +31,9 @@ export default function StyledTextInput(props) {
         setReason(validateText.reason);
       }
       setInvalid(!validateText.valid);
+    } else if (props.required && text === "") {
+      setReason(`${props.field} is required.`);
+      setInvalid(true);
     }
 
     // Update text of input
