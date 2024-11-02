@@ -4,7 +4,7 @@ const validateYear = (year) => {
     if (!validYears.includes(year)) {
         return {
             valid: false,
-            reason: "Year must be either 'Freshman', 'Sophomore', 'Junior', or 'Senior'"
+            reason: "Year must be 'Freshman', 'Sophomore', 'Junior', or 'Senior'"
         };
     }
     return {

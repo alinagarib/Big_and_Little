@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet } from 'react-native';
 
 import { router } from 'expo-router';
@@ -22,6 +22,9 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  // State for scroll fix
+  const scrollFix = useRef(false);
 
   // Method to POST inputted data to /register server route
   const createUser = () => {
@@ -71,6 +74,21 @@ export default function Register() {
     });
   }
 
+  // Workaround to not hide text input helper/error text
+  const handleScroll = (event) => {
+    if (scrollFix.current) {
+      scrollFix.current = false;
+    } else if (Keyboard.isVisible()) {
+      const height = event.nativeEvent.contentOffset.y;
+      scrollFix.current = true;
+      this.scrollView.scrollTo({
+        x: 0,
+        y: height + 50,
+        animated: true
+      });
+    }
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
@@ -78,48 +96,53 @@ export default function Register() {
           <Title />
         </View>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.form}>
-            <StyledTextInput
-              field="Name"
-              value={name}
-              setText={setName}
-              placeholder="Albert Gator"
-              autoComplete="name"
-              autocorrect={false}
-              required />
-            <StyledTextInput
-              field="Year"
-              value={year}
-              setText={setYear}
-              placeholder="Freshman"
-              autocorrect={false}
-              validate={validateYear} />
-            <StyledTextInput
-              field="Email"
-              value={email}
-              setText={setEmail}
-              placeholder="albert@ufl.edu"
-              autoComplete="email"
-              autocorrect={false}
-              validate={validateEmail} />
-            <StyledTextInput
-              field="Username"
-              value={username}
-              setText={setUsername}
-              placeholder="albert"
-              autoComplete="username"
-              autocorrect={false}
-              validate={validateUsername} />
-            <StyledTextInput
-              field="Password"
-              value={password}
-              setText={setPassword}
-              placeholder="supersecretpassword"
-              autoComplete="current-password"
-              autocorrect={false}
-              helperText="Password must be at least 8 characters"
-              validate={validatePassword} />
-            <StyledButton text="Create Account" onClick={createUser} />
+          <ScrollView
+            style={styles.scrollContainer}
+            ref={ref => this.scrollView = ref}
+            onMomentumScrollEnd={handleScroll}>
+            <View onStartShouldSetResponder={() => true} style={styles.form}>
+              <StyledTextInput
+                field="Name"
+                value={name}
+                setText={setName}
+                placeholder="Albert Gator"
+                autoComplete="name"
+                autocorrect={false}
+                required />
+              <StyledTextInput
+                field="Year"
+                value={year}
+                setText={setYear}
+                placeholder="Freshman"
+                autocorrect={false}
+                validate={validateYear} />
+              <StyledTextInput
+                field="Email"
+                value={email}
+                setText={setEmail}
+                placeholder="albert@ufl.edu"
+                autoComplete="email"
+                autocorrect={false}
+                validate={validateEmail} />
+              <StyledTextInput
+                field="Username"
+                value={username}
+                setText={setUsername}
+                placeholder="albert"
+                autoComplete="username"
+                autocorrect={false}
+                validate={validateUsername} />
+              <StyledTextInput
+                field="Password"
+                value={password}
+                setText={setPassword}
+                placeholder="supersecretpassword"
+                autoComplete="current-password"
+                autocorrect={false}
+                helperText="Password must be at least 8 characters"
+                validate={validatePassword} />
+              <StyledButton text="Create Account" onClick={createUser} />
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
