@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableWithoutFeedback, Keyboard, View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 
 /* 
   Styled Text Input Component - Displays text input with field header
@@ -41,23 +41,21 @@ export default function StyledTextInput(props) {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <Text style={[styles.field, (invalid && styles.invalidText)]}>{props.field}</Text>
-        <TextInput
-          style={[styles.input, (invalid && styles.invalidInput)]}
-          onChangeText={(text) => onChangeText(text)}
-          value={props.value}
-          placeholder={props.placeholder}
-          autoComplete={props.autoComplete}
-          autoCorrect={props.autoCorrect} />
-        {(props.helperText || invalid) && (
-          invalid ? 
-            <Text style={styles.invalidText}>{reason}</Text> :
-            <Text style={styles.helperText}>{props.helperText}</Text>
-        )}
-      </View>
-    </TouchableWithoutFeedback>
+    <View style={styles.container}>
+      <Text style={[styles.field, (invalid && styles.invalidText)]}>{props.field}</Text>
+      <TextInput
+        style={[styles.input, (invalid && styles.invalidInput)]}
+        onChangeText={(text) => onChangeText(text)}
+        value={props.value}
+        placeholder={props.placeholder}
+        autoComplete={props.autoComplete}
+        autoCorrect={props.autoCorrect} />
+      {(props.helperText || invalid) && (
+        invalid ? 
+          <Text style={styles.invalidText}>{reason}</Text> :
+          <Text style={styles.helperText}>{props.helperText}</Text>
+      )}
+    </View>
   );
 };
 

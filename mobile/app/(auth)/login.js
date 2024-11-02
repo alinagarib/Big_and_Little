@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
 
 import { Link, router } from 'expo-router';
 import Constants from "expo-constants";
@@ -69,42 +69,44 @@ export default function Login() {
   }
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
-      <View style={styles.titleSection}>
-        <Title />
-      </View>
-      <View style={styles.form}>
-        <StyledTextInput
-          field="Username/Email"
-          value={userID}
-          setText={setUserID}
-          placeholder="albert/albert@ufl.edu"
-          autoComplete="username"
-          autoCorrect={false}
-          required />
-        <StyledTextInput
-          field="Password"
-          value={password}
-          setText={setPassword}
-          placeholder="supersecretpassword"
-          autoComplete="current-password"
-          autoCorrect={false}
-          required />
-        <StyledButton text="Sign In" onClick={loginUser} />
-        <View style={styles.bottom}>
-          <Pressable
-            style={forgotPressed && { backgroundColor: 'lightgrey' }}
-            onPressIn={() => setForgotPressed(true)}
-            onPressOut={() => setForgotPressed(false)}
-            onPress={() => forgotPassword()}>
-            <Text style={styles.forgot}>Forgot password?</Text>
-          </Pressable>
-          <Link href='/register' style={styles.create}>Create an account</Link>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}>
+        <View style={styles.titleSection}>
+          <Title />
         </View>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.form}>
+          <StyledTextInput
+            field="Username/Email"
+            value={userID}
+            setText={setUserID}
+            placeholder="albert/albert@ufl.edu"
+            autoComplete="username"
+            autoCorrect={false}
+            required />
+          <StyledTextInput
+            field="Password"
+            value={password}
+            setText={setPassword}
+            placeholder="supersecretpassword"
+            autoComplete="current-password"
+            autoCorrect={false}
+            required />
+          <StyledButton text="Sign In" onClick={loginUser} />
+          <View style={styles.bottom}>
+            <Pressable
+              style={forgotPressed && { backgroundColor: 'lightgrey' }}
+              onPressIn={() => setForgotPressed(true)}
+              onPressOut={() => setForgotPressed(false)}
+              onPress={() => forgotPassword()}>
+              <Text style={styles.forgot}>Forgot password?</Text>
+            </Pressable>
+            <Link href='/register' style={styles.create}>Create an account</Link>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
