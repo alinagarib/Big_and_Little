@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, View, ScrollView, StyleSheet } from 'react-native';
 
 import { router } from 'expo-router';
 import Constants from "expo-constants";
@@ -64,10 +64,9 @@ export default function Register() {
         });
       } else {
         /*
-          Register successful, navigate to /home page
-          TODO: Create /home page
+          Register successful, navigate to /login page
         */
-        router.navigate('/home');
+        router.navigate('/login');
       }
     });
   }
@@ -77,48 +76,50 @@ export default function Register() {
       <View style={styles.titleSection}>
         <Title />
       </View>
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.form}>
-        <StyledTextInput
-          field="Name"
-          value={name}
-          setText={setName}
-          placeholder="Albert Gator"
-          autoComplete="name"
-          autocorrect={false} />
-        <StyledTextInput
-          field="Year"
-          value={year}
-          setText={setYear}
-          placeholder="Freshman"
-          autocorrect={false}
-          validate={validateYear} />
-        <StyledTextInput
-          field="Email"
-          value={email}
-          setText={setEmail}
-          placeholder="albert@ufl.edu"
-          autoComplete="email"
-          autocorrect={false}
-          validate={validateEmail} />
-        <StyledTextInput
-          field="Username"
-          value={username}
-          setText={setUsername}
-          placeholder="albert"
-          autoComplete="username"
-          autocorrect={false}
-          validate={validateUsername} />
-        <StyledTextInput
-          field="Password"
-          value={password}
-          setText={setPassword}
-          placeholder="supersecretpassword"
-          autoComplete="current-password"
-          autocorrect={false}
-          helperText="Password must be at least 8 characters"
-          validate={validatePassword} />
-        <StyledButton text="Create Account" onClick={createUser} />
-      </ScrollView>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.form}>
+          <StyledTextInput
+            field="Name"
+            value={name}
+            setText={setName}
+            placeholder="Albert Gator"
+            autoComplete="name"
+            autocorrect={false} />
+          <StyledTextInput
+            field="Year"
+            value={year}
+            setText={setYear}
+            placeholder="Freshman"
+            autocorrect={false}
+            validate={validateYear} />
+          <StyledTextInput
+            field="Email"
+            value={email}
+            setText={setEmail}
+            placeholder="albert@ufl.edu"
+            autoComplete="email"
+            autocorrect={false}
+            validate={validateEmail} />
+          <StyledTextInput
+            field="Username"
+            value={username}
+            setText={setUsername}
+            placeholder="albert"
+            autoComplete="username"
+            autocorrect={false}
+            validate={validateUsername} />
+          <StyledTextInput
+            field="Password"
+            value={password}
+            setText={setPassword}
+            placeholder="supersecretpassword"
+            autoComplete="current-password"
+            autocorrect={false}
+            helperText="Password must be at least 8 characters"
+            validate={validatePassword} />
+          <StyledButton text="Create Account" onClick={createUser} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   scrollContainer: {
-    flex: 1,
+    height: '60%',
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     borderRadius: 4,

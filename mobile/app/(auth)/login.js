@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, View, Text, Pressable, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
 
 import { Link, router } from 'expo-router';
 import Constants from "expo-constants";
@@ -69,7 +69,9 @@ export default function Login() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
       <View style={styles.titleSection}>
         <Title />
       </View>
@@ -100,7 +102,7 @@ export default function Login() {
           <Link href='/register' style={styles.create}>Create an account</Link>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -109,15 +111,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     fontFamily: 'Inter',
-    paddingVertical: 80,
+    paddingTop: 40
   },
   titleSection: {
-    height: '40%',
+    height: '50%',
     alignItems: 'center',
     justifyContent: 'center'
   },
   form: {
-    flex: 1,
+    height: '50%',
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     borderRadius: 4,
