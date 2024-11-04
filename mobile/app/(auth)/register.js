@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { Alert, View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet } from 'react-native';
 
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import Constants from "expo-constants";
 
 import Title from '@components/Title';
-import StyledTextInput from '@components/StyledTextInput';
+import StyledTextInput from '@components/StyledTextInput'
 import StyledButton from '@components/StyledButton';
+
+import { validateYear, validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
 
 /*
   Route: /register
@@ -14,43 +16,39 @@ import StyledButton from '@components/StyledButton';
   Prompts user to create their account
 */
 export default function Register() {
-  const [username, setUsername] = useState('');
+  // States for text inputs
+  const [name, setName] = useState('');
+  const [year, setYear] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
 
-  const registerUser = () => {
-    /* if (password !== confirmPassword) {
-      Alert.alert('', 'Passwords must match.', [{
-        text: 'OK',
-        style: 'cancel'
-      }]);
+  // State for scroll fix
+  const scrollFix = useRef(false);
 
-      return;
-    } */
-
+  // Method to POST inputted data to /register server route
+  const createUser = () => {
     const payload = {
+      name: name,
+      year: year,
       username: username,
       email: email,
       password: password
-    };
-
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    };
+    }
 
     // Get IP that Expo server is using to host app, allows to connect with the backend
     const URI = Constants.expoConfig.hostUri.split(':').shift();
-    
-    // POST to /register with payload
-    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/register`, requestOptions)
-      .then(res => {
-        if (!res.ok) { // Registration failed
-          res.text().then(text => {
+
+    // POST to /login with payload
+    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    }).then(res => {
+      if (!res.ok) { // Login failed
+        res.text().then(text => {
           /*
             Display alert to user with error message
             TODO: Create custom styled alert?
@@ -61,61 +59,94 @@ export default function Register() {
           }]);
 
           // Clear text inputs
-          setUsername('');
+          setName('');
+          setYear('');
           setEmail('');
+          setUsername('');
           setPassword('');
         });
       } else {
         /*
-          Registration successful, navigate to /home page
-          TODO: Create /home page
+          Register successful, navigate to /login page
         */
-        Alert.alert('', 'Registration successful', [{
-          text: 'OK',
-          style: 'cancel'
-        }]);
-
-        router.navigate('/home');
+        router.navigate('/login');
       }
-    })
-    .catch((err) => {
-      console.log(err);
     });
-  };
+  }
+
+  // Workaround to not hide text input helper/error text
+  const handleScroll = (event) => {
+    if (scrollFix.current) {
+      scrollFix.current = false;
+    } else if (Keyboard.isVisible()) {
+      const height = event.nativeEvent.contentOffset.y;
+      scrollFix.current = true;
+      this.scrollView.scrollTo({
+        x: 0,
+        y: height + 50,
+        animated: true
+      });
+    }
+  }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.titleSection}>
-        <Title />
-      </View>
-      <View style={styles.form}>
-        <StyledTextInput
-          field="Username"
-          value={username}
-          setText={setUsername}
-          placeholder="albert"
-          autoComplete="username"
-          autoCorrect={false} />
-        <StyledTextInput
-          field="Email"
-          value={email}
-          setText={setEmail}
-          placeholder="albert@ufl.edu"
-          autoComplete="email"
-          autoCorrect={false} />
-        <StyledTextInput
-          field="Password"
-          value={password}
-          setText={setPassword}
-          placeholder="supersecretpassword"
-          autoComplete="current-password"
-          autoCorrect={false} />
-        <StyledButton text="Sign Up" onClick={registerUser} />
-        <View style={styles.bottom}>
-          <Link href='/login' style={styles.create}>Already have an account? Login</Link>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <View style={styles.titleSection}>
+          <Title />
         </View>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView
+            style={styles.scrollContainer}
+            ref={ref => this.scrollView = ref}
+            onMomentumScrollEnd={handleScroll}>
+            <View onStartShouldSetResponder={() => true} style={styles.form}>
+              <StyledTextInput
+                field="Name"
+                value={name}
+                setText={setName}
+                placeholder="Albert Gator"
+                autoComplete="name"
+                autocorrect={false}
+                required />
+              <StyledTextInput
+                field="Year"
+                value={year}
+                setText={setYear}
+                placeholder="Freshman"
+                autocorrect={false}
+                validate={validateYear} />
+              <StyledTextInput
+                field="Email"
+                value={email}
+                setText={setEmail}
+                placeholder="albert@ufl.edu"
+                autoComplete="email"
+                autocorrect={false}
+                validate={validateEmail} />
+              <StyledTextInput
+                field="Username"
+                value={username}
+                setText={setUsername}
+                placeholder="albert"
+                autoComplete="username"
+                autocorrect={false}
+                validate={validateUsername} />
+              <StyledTextInput
+                field="Password"
+                value={password}
+                setText={setPassword}
+                placeholder="supersecretpassword"
+                autoComplete="current-password"
+                autocorrect={false}
+                helperText="Password must be at least 8 characters"
+                validate={validatePassword} />
+              <StyledButton text="Create Account" onClick={createUser} />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -124,32 +155,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     fontFamily: 'Inter',
-    paddingVertical: 80,
+    paddingTop: 80
   },
   titleSection: {
     height: '40%',
     alignItems: 'center',
     justifyContent: 'center'
   },
-  form: {
-    flex: 1,
+  scrollContainer: {
+    height: '60%',
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     borderRadius: 4,
     padding: 20,
     gap: 30
   },
-  bottom: {
-    marginTop: -10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  forgot: {
-    textDecorationLine: 'underline',
-    fontSize: 15
-  },
-  create: {
-    textDecorationLine: 'underline',
-    fontSize: 15
+  form: {
+    gap: 15,
+    paddingBottom: 80
   }
 });
