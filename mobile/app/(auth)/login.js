@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, View, Text, Pressable, StyleSheet } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
 
 import { Link, router } from 'expo-router';
 import Constants from "expo-constants";
@@ -69,38 +69,44 @@ export default function Login() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.titleSection}>
-        <Title />
-      </View>
-      <View style={styles.form}>
-        <StyledTextInput
-          field="Username/Email"
-          value={userID}
-          setText={setUserID}
-          placeholder="albert/albert@ufl.edu"
-          autoComplete="username"
-          autoCorrect={false} />
-        <StyledTextInput
-          field="Password"
-          value={password}
-          setText={setPassword}
-          placeholder="supersecretpassword"
-          autoComplete="current-password"
-          autoCorrect={false} />
-        <StyledButton text="Sign In" onClick={loginUser} />
-        <View style={styles.bottom}>
-          <Pressable
-            style={forgotPressed && { backgroundColor: 'lightgrey' }}
-            onPressIn={() => setForgotPressed(true)}
-            onPressOut={() => setForgotPressed(false)}
-            onPress={() => forgotPassword()}>
-            <Text style={styles.forgot}>Forgot password?</Text>
-          </Pressable>
-          <Link href='/register' style={styles.create}>Create an account</Link>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}>
+        <View style={styles.titleSection}>
+          <Title />
         </View>
-      </View>
-    </View>
+        <View style={styles.form}>
+          <StyledTextInput
+            field="Username/Email"
+            value={userID}
+            setText={setUserID}
+            placeholder="albert/albert@ufl.edu"
+            autoComplete="username"
+            autoCorrect={false}
+            required />
+          <StyledTextInput
+            field="Password"
+            value={password}
+            setText={setPassword}
+            placeholder="supersecretpassword"
+            autoComplete="current-password"
+            autoCorrect={false}
+            required />
+          <StyledButton text="Sign In" onClick={loginUser} />
+          <View style={styles.bottom}>
+            <Pressable
+              style={forgotPressed && { backgroundColor: 'lightgrey' }}
+              onPressIn={() => setForgotPressed(true)}
+              onPressOut={() => setForgotPressed(false)}
+              onPress={() => forgotPassword()}>
+              <Text style={styles.forgot}>Forgot password?</Text>
+            </Pressable>
+            <Link href='/register' style={styles.create}>Create an account</Link>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -109,15 +115,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     fontFamily: 'Inter',
-    paddingVertical: 80,
+    paddingTop: 40
   },
   titleSection: {
-    height: '40%',
+    height: '50%',
     alignItems: 'center',
     justifyContent: 'center'
   },
   form: {
-    flex: 1,
+    height: '50%',
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     borderRadius: 4,
