@@ -8,6 +8,11 @@ import Title from '@components/Title';
 import StyledTextInput from '@components/StyledTextInput'
 import StyledButton from '@components/StyledButton';
 
+import {Picker} from '@react-native-picker/picker';
+
+
+
+
 import { validateYear, validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
 
 /*
@@ -22,6 +27,8 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+
 
   // State for scroll fix
   const scrollFix = useRef(false);
@@ -101,6 +108,7 @@ export default function Register() {
             ref={ref => this.scrollView = ref}
             onMomentumScrollEnd={handleScroll}>
             <View onStartShouldSetResponder={() => true} style={styles.form}>
+          
               <StyledTextInput
                 field="Name"
                 value={name}
@@ -109,13 +117,18 @@ export default function Register() {
                 autoComplete="name"
                 autocorrect={false}
                 required />
-              <StyledTextInput
-                field="Year"
-                value={year}
-                setText={setYear}
-                placeholder="Freshman"
-                autocorrect={false}
-                validate={validateYear} />
+              
+                <Picker
+                selectedValue={year}
+                onValueChange={(itemValue, itemIndex) =>
+                  setYear(itemValue)
+                }>
+                <Picker.Item label="Freshmen" value="Freshmen" />
+                <Picker.Item label="Sophmore" value="Sophmore" />
+                <Picker.Item label="Junior" value="Junior" />
+                <Picker.Item label="Senior" value="Senior" />
+              </Picker>
+
               <StyledTextInput
                 field="Email"
                 value={email}
