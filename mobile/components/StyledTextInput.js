@@ -14,6 +14,9 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
     helperText: Helper text for text input
     validate: Function used to validate input
     required: If field is required
+    editable: If field can actively be edited
+    multiline: If field can span multiple lines
+    numberOfLines: Number of lines to span (if multiline)
   }
   (See https://reactnative.dev/docs/textinput)
 */
@@ -49,7 +52,10 @@ export default function StyledTextInput(props) {
         value={props.value}
         placeholder={props.placeholder}
         autoComplete={props.autoComplete}
-        autoCorrect={props.autoCorrect} />
+        autoCorrect={props.autoCorrect} 
+        editable={props.editable}
+        multiline={props.multiline}
+        numberOfLines={props.numberOfLines}/>
       {(props.helperText || invalid) && (
         invalid ? 
           <Text style={styles.invalidText}>{reason}</Text> :
