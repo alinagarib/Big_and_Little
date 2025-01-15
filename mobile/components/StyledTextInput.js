@@ -34,9 +34,11 @@ export default function StyledTextInput(props) {
         setReason(validateText.reason);
       }
       setInvalid(!validateText.valid);
-    } else if (props.required && text === "") {
-      setReason(`${props.field} is required.`);
-      setInvalid(true);
+    } else if (props.required) {
+      if (text === "") {
+        setReason(`${props.field} is required.`);
+      }
+      setInvalid(text === "");
     }
 
     // Update text of input

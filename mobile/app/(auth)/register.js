@@ -123,8 +123,8 @@ export default function Register() {
                 onValueChange={(itemValue, itemIndex) =>
                   setYear(itemValue)
                 }>
-                <Picker.Item label="Freshmen" value="Freshmen" />
-                <Picker.Item label="Sophmore" value="Sophmore" />
+                <Picker.Item label="Freshman" value="Freshman" />
+                <Picker.Item label="Sophomore" value="Sophomore" />
                 <Picker.Item label="Junior" value="Junior" />
                 <Picker.Item label="Senior" value="Senior" />
               </Picker>
