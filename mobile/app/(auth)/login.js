@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
 
 import { Link, router } from 'expo-router';
-import Constants from "expo-constants";
 
 import Title from '@components/Title';
 import StyledTextInput from '@components/StyledTextInput';
 import StyledButton from '@components/StyledButton';
+
+import { useSession } from '@context/ctx';
 
 /*
   Route: /login
@@ -20,47 +21,29 @@ export default function Login() {
   const [userID, setUserID] = useState('');
   const [password, setPassword] = useState('');
 
+  const { signIn } = useSession();
+
   // Method to POST inputted data to /login server route
-  const loginUser = () => {
+  const loginUser = async () => {
     const payload = {
       userID: userID,
       password: password
     }
 
-    // Get IP that Expo server is using to host app, allows to connect with the backend
-    const URI = Constants.expoConfig.hostUri.split(':').shift();
+    const result = await signIn(payload);
 
-    // POST to /login with payload
-    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    }).then(res => {
-      if (!res.ok) { // Login failed
-        res.text().then(text => {
-          /*
-            Display alert to user with error message
-            TODO: Create custom styled alert?
-          */
-          Alert.alert('', text, [{
-            text: 'OK',
-            style: 'cancel'
-          }]);
+    if (!result.success) {
+      Alert.alert('', result.message, [{
+        text: 'OK',
+        style: 'cancel'
+      }]);
 
-          // Clear text inputs
-          setUserID('');
-          setPassword('');
-        });
-      } else {
-        /*
-          Login successful, navigate to /home page
-          TODO: Create /home page
-        */
-        router.navigate('/home');
-      }
-    });
+      // Clear text inputs
+      setUserID('');
+      setPassword('');
+    } else {
+      router.navigate('/home');
+    }
   }
 
   // TODO: Need to implement forgot password
