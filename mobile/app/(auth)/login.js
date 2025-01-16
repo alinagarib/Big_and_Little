@@ -92,7 +92,8 @@ export default function Login() {
             placeholder="supersecretpassword"
             autoComplete="current-password"
             autoCorrect={false}
-            required />
+            required
+            secureTextEntry={true} />
           <StyledButton text="Sign In" onClick={loginUser} />
           <View style={styles.bottom}>
             <Pressable

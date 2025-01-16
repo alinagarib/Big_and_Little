@@ -17,6 +17,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
     editable: If field can actively be edited
     multiline: If field can span multiple lines
     numberOfLines: Number of lines to span (if multiline)
+    secureTextEntry: If text input should be obscured (passwords)
   }
   (See https://reactnative.dev/docs/textinput)
 */
@@ -57,7 +58,8 @@ export default function StyledTextInput(props) {
         autoCorrect={props.autoCorrect} 
         editable={props.editable}
         multiline={props.multiline}
-        numberOfLines={props.numberOfLines}/>
+        numberOfLines={props.numberOfLines}
+        secureTextEntry={props.secureTextEntry}/>
       {(props.helperText || invalid) && (
         invalid ? 
           <Text style={styles.invalidText}>{reason}</Text> :

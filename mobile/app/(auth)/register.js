@@ -83,6 +83,7 @@ export default function Register() {
 
   // Workaround to not hide text input helper/error text
   const handleScroll = (event) => {
+    if (this.scrollView === undefined) return;
     if (scrollFix.current) {
       scrollFix.current = false;
     } else if (Keyboard.isVisible()) {
@@ -153,7 +154,8 @@ export default function Register() {
                 autoComplete="current-password"
                 autocorrect={false}
                 helperText="Password must be at least 8 characters"
-                validate={validatePassword} />
+                validate={validatePassword}
+                secureTextEntry={true} />
               <StyledButton text="Create Account" onClick={createUser} />
             </View>
           </ScrollView>
