@@ -86,20 +86,19 @@ export default function ViewProfile() {
 
     // Workaround to not hide text input helper/error text
     const handleScroll = (event) => {
-        if (scrollFix.current) {
-            scrollFix.current = false;
-        } 
-        else if (Keyboard.isVisible()) {
-            const height = event.nativeEvent.contentOffset.y;
-            scrollFix.current = true;
-            if (this.scrollView) {
-              this.scrollView.scrollTo({
-                x: 0,
-                y: height + 50,
-                animated: true
-            });
-            }
-        }
+      if (this.scrollView === undefined) return;
+      if (scrollFix.current) {
+        scrollFix.current = false;
+      } 
+      else if (Keyboard.isVisible()) {
+          const height = event.nativeEvent.contentOffset.y;
+          scrollFix.current = true;
+          this.scrollView.scrollTo({
+            x: 0,
+            y: height + 50,
+            animated: true
+          });
+      }
     }
 
     return (
