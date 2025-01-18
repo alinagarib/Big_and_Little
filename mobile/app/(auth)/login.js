@@ -99,15 +99,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     fontFamily: 'Inter',
-    paddingTop: 40
+    paddingTop: 20
   },
   titleSection: {
     height: '40%',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    paddingBottom: 20
   },
   form: {
-    height: '50%',
+    height: '60%',
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     borderRadius: 4,
