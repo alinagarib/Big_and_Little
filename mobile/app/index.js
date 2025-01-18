@@ -1,9 +1,11 @@
-import { View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
-import { router } from 'expo-router';
+import { Redirect, router, usePathname } from 'expo-router';
 
 import Title from '@components/Title';
 import StyledButton from '@components/StyledButton';
+
+import { useSession } from "@context/ctx";
 
 // Create button onClick methods
 const login = () => {
@@ -20,6 +22,17 @@ const register = () => {
   Displays login and create account buttons
 */
 export default function Index() {
+  const { session, isLoading } = useSession();
+  const pathname = usePathname();
+
+  // If user is already logged in, redirect directly to home
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+  if (session && pathname === '/') {
+    return <Redirect href="/home" />;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.body}>
