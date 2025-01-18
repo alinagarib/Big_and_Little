@@ -31,6 +31,7 @@ export default function Register() {
 
 
   // State for scroll fix
+  const scrollViewRef = useRef(null);
   const scrollFix = useRef(false);
 
   // Method to POST inputted data to /register server route
@@ -83,13 +84,13 @@ export default function Register() {
 
   // Workaround to not hide text input helper/error text
   const handleScroll = (event) => {
-    if (this.scrollView === undefined) return;
+    if (scrollViewRef.current === undefined) return;
     if (scrollFix.current) {
       scrollFix.current = false;
     } else if (Keyboard.isVisible()) {
       const height = event.nativeEvent.contentOffset.y;
       scrollFix.current = true;
-      this.scrollView.scrollTo({
+      scrollViewRef.current.scrollTo({
         x: 0,
         y: height + 50,
         animated: true
@@ -106,7 +107,7 @@ export default function Register() {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <ScrollView
             style={styles.scrollContainer}
-            ref={ref => this.scrollView = ref}
+            ref={scrollViewRef}
             onMomentumScrollEnd={handleScroll}>
             <View onStartShouldSetResponder={() => true} style={styles.form}>
           
@@ -119,11 +120,12 @@ export default function Register() {
                 autocorrect={false}
                 required />
               
-                <Picker
+              <Picker
+                style={styles.picker}
                 selectedValue={year}
                 onValueChange={(itemValue, itemIndex) =>
                   setYear(itemValue)
-                }>
+              }>
                 <Picker.Item label="Freshman" value="Freshman" />
                 <Picker.Item label="Sophomore" value="Sophomore" />
                 <Picker.Item label="Junior" value="Junior" />
@@ -169,8 +171,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    fontFamily: 'Inter',
-    paddingTop: 80
+    fontFamily: 'Inter'
   },
   titleSection: {
     height: '40%',
@@ -188,5 +189,8 @@ const styles = StyleSheet.create({
   form: {
     gap: 15,
     paddingBottom: 80
+  },
+  picker: {
+    marginVertical: -15
   }
 });

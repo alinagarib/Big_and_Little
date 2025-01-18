@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     paddingTop: 40
   },
   titleSection: {
-    height: '50%',
+    height: '40%',
     alignItems: 'center',
     justifyContent: 'center'
   },
