@@ -57,21 +57,39 @@ export default function Register() {
     }).then(res => {
       if (!res.ok) { // Login failed
         res.text().then(text => {
-          /*
-            Display alert to user with error message
-            TODO: Create custom styled alert?
-          */
-          Alert.alert('', text, [{
+          
+          //split the error message from the string that has all of the invalid feilds
+          const messages = text.split("|");
+          const errorMessage = messages[0];
+          const invalidFeilds = messages[1];
+
+          Alert.alert('', errorMessage, [{
             text: 'OK',
             style: 'cancel'
           }]);
+          
+                
+          //clear the feilds that are invalid
+          if(invalidFeilds.includes('fullname')){
+            setName('');
+          }
 
-          // Clear text inputs
-          setName('');
-          setYear('');
-          setEmail('');
-          setUsername('');
-          setPassword('');
+          if(invalidFeilds.includes('year')){
+            setYear('');
+          }
+
+          if(invalidFeilds.includes('username')){
+            setUsername('');
+          }
+
+          if(invalidFeilds.includes('email')){
+            setEmail('');
+          }
+
+          if(invalidFeilds.includes('password')){
+            setPassword('');
+          }
+
         });
       } else {
         /*
