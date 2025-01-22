@@ -19,27 +19,27 @@ const registerUser = async (req, res) => {
     const { name, year, username, email, password } = req.body;
 
     //create the error message and invalid inputs list
-    invalidInputs = "";
+    invalidInputs = [];
     returningMessage = "";
     if (!name || name.length < 1) {
-        invalidInputs += 'fullname';
+        invalidInputs.push('fullname');
         returningMessage += 'Cannot register new user, no name was provided!\n\n';
     }
 
     if (year === undefined) {
-        invalidInputs += 'year';
+        invalidInputs.push('year');
         returningMessage += 'Cannot register new user, no year was provided!\n\n';
     }
     // Validate year
     const validYear = validateYear(year);
     if (!validYear.valid) {
-        invalidInputs += 'year';
+        invalidInputs.push('year');
         returningMessage += validYear.reason + `\n\n`;
     }
 
     //had to use this because it was saying it wasnt undefined even when it was empty
     if (!username || username.length < 1) {
-        invalidInputs += 'username';
+        invalidInputs.push('username');
         returningMessage += 'Cannot register new user, no username was provided!\n\n';
         
     }
@@ -47,26 +47,26 @@ const registerUser = async (req, res) => {
     // Validate username
     const validUsername = validateUsername(username);
     if (!validUsername.valid) {
-        invalidInputs += 'username';
+        invalidInputs.push('username');
         returningMessage += validUsername.reason + `\n\n`;
     }
 
     // Validate email
     const validEmail = validateEmail(email);
     if (!validEmail.valid) {
-        invalidInputs += 'email';
+        invalidInputs.push('email');
         returningMessage += validEmail.reason + `\n\n`;
     }
 
     if (password === undefined) {
-        invalidInputs += 'password';
+        invalidInputs.push(password);
         returningMessage += 'Cannot register new user, no password was provided!\n\n';
     }
 
     // Validate password
     const validPassword = validatePassword(password);
     if (!validPassword.valid) {
-        invalidInputs += 'password';
+        invalidInputs.push('password');
         returningMessage += validPassword.reason + `\n\n`;
     }
 
@@ -86,14 +86,14 @@ const registerUser = async (req, res) => {
         //only check DB if username valid
         if(!invalidInputs.includes('username')){
             if (await User.findOne({ username }) !== null) {
-                invalidInputs += 'username';
+                invalidInputs.push('username');
                 returningMessage += 'Cannot register new user, username already exists!\n\n';
             }
         }
         //only check DB if email valid
         if(!invalidInputs.includes('email')){
             if (await User.findOne({ email }) !== null) {
-                invalidInputs += 'email';
+                invalidInputs.push('email');
                 returningMessage += 'Cannot register new user, email already exists!\n\n';
             }
         }
@@ -102,7 +102,10 @@ const registerUser = async (req, res) => {
         if(invalidInputs.length > 0){
             returningMessage = returningMessage.slice(0, -2);
             //return both the error message and the invalid inputs to be used in register.js
-            return res.status(400).send(returningMessage + "|" + invalidInputs);
+            return res.status(400).json({
+                message: returningMessage,
+                invalidInputs: invalidInputs
+              });
         }
 
         // Save new user to DB

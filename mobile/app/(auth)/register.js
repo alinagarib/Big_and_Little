@@ -56,12 +56,11 @@ export default function Register() {
       body: JSON.stringify(payload)
     }).then(res => {
       if (!res.ok) { // Login failed
-        res.text().then(text => {
+        res.json().then(data => {
           
-          //split the error message from the string that has all of the invalid feilds
-          const messages = text.split("|");
-          const errorMessage = messages[0];
-          const invalidFeilds = messages[1];
+          
+          const errorMessage = data.message;
+          const invalidFeilds = data.invalidInputs;
 
           Alert.alert('', errorMessage, [{
             text: 'OK',
