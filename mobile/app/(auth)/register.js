@@ -60,7 +60,7 @@ export default function Register() {
           
           
           const errorMessage = data.message;
-          const invalidFeilds = data.invalidInputs;
+          const invalidFields = data.invalidInputs;
 
           Alert.alert('', errorMessage, [{
             text: 'OK',
@@ -68,24 +68,24 @@ export default function Register() {
           }]);
           
                 
-          //clear the feilds that are invalid
-          if(invalidFeilds.includes('fullname')){
+          //clear the fields that are invalid
+          if(invalidFields.includes('fullname')){
             setName('');
           }
 
-          if(invalidFeilds.includes('year')){
+          if(invalidFields.includes('year')){
             setYear('');
           }
 
-          if(invalidFeilds.includes('username')){
+          if(invalidFields.includes('username')){
             setUsername('');
           }
 
-          if(invalidFeilds.includes('email')){
+          if(invalidFields.includes('email')){
             setEmail('');
           }
 
-          if(invalidFeilds.includes('password')){
+          if(invalidFields.includes('password')){
             setPassword('');
           }
 
