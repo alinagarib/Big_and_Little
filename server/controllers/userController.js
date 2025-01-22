@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Profile = require('../models/Profile');
 const { Error } = require('mongoose');
 
 const bcrypt = require('bcrypt');
@@ -9,7 +10,7 @@ const {
     validateUsername,
     validateEmail,
     validatePassword,
-} = require("../middleware/userValidation");
+} = require('../middleware/userValidation');
 
 // @desc Register new user
 // @route POST /register
@@ -115,16 +116,54 @@ const loginUser = async (req, res) => {
             return res.status(401).send('Cannot login user, incorrect password!');
         }
 
-        // Issue JWT
-        const payload = {
-            username: user.username
+        // Get all profiles associated with the current User
+        const rolesResult = await User.aggregate([
+            {
+              $lookup: {
+                from: 'profiles',
+                localField: '_id',
+                foreignField: 'userId',
+                as: 'profileDocs'
+              }
+            },
+            {
+              $unwind: '$profileDocs'
+            },
+            {
+              $group: {
+                _id: '$_id',
+                roles: { $addToSet: '$profileDocs.roles' }, // add profile roles to result
+                organization: { $first: '$profileDocs.organizationId' } // add profile organizations to result
+              }
+            }
+        ]);
+
+        let adminOrgs = [];
+        for (let i = 0; i < rolesResult.length; i++) {
+            console.log(rolesResult[i]);
+
+            let { roles, organization } = rolesResult[i];
+
+            if (roles[i].includes('Admin')) {
+                adminOrgs.push(organization);
+            }
         }
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-            expiresIn: "7d"
-        });
+        console.log(adminOrgs);
 
-        return res.status(200).send(token);
+        // Issue JWT
+        const accessToken = jwt.sign(
+            {
+                'UserInfo': {
+                    'username': user.username,
+                    'admin_orgs': adminOrgs
+                }
+            },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: '7d' }
+        );
+
+        return res.status(200).send(accessToken);
     } 
     catch (err) { // Server error (Probably a Mongoose connection issue)
         return res.status(500).send();
