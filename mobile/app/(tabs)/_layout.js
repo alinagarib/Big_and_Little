@@ -1,6 +1,5 @@
 import { Text, TouchableOpacity } from 'react-native';
 import { Redirect, Tabs, useRouter } from 'expo-router';
-
 import { useSession } from '@context/ctx';
 
 export default function TabLayout() {
