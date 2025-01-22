@@ -23,10 +23,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    roles: [{
-        type: String,
-        default: "Member"
-    }],
     // TODO: Determine user preferences (not necessary at account creation)
     // NOTE: User preferences may be better stored as an object e.g. { prefID: <int ID>, userPref: <bool pref> }
     preferences: [{
