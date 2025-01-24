@@ -16,7 +16,8 @@ exports.createProfile = async (req, res) => {
       bio,
       organizationId,
       profilePicture,
-      uploadPictures
+      uploadPictures,
+      roles: ['Member']
     });
 
     await profile.save();
