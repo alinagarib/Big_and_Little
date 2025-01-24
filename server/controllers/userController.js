@@ -17,45 +17,59 @@ const {
 const registerUser = async (req, res) => {
     // Parse request body and create hashed password
     const { name, year, username, email, password } = req.body;
-    if (name === undefined) {
-        return res.status(400).send('Cannot register new user, no name was provided!');
+
+    //create the error message and invalid inputs list
+    invalidInputs = [];
+    returningMessage = "";
+    if (!name || name.length < 1) {
+        invalidInputs.push('fullname');
+        returningMessage += 'Cannot register new user, no name was provided!\n\n';
     }
 
     if (year === undefined) {
-        return res.status(400).send('Cannot register new user, no year was provided!');
+        invalidInputs.push('year');
+        returningMessage += 'Cannot register new user, no year was provided!\n\n';
     }
     // Validate year
     const validYear = validateYear(year);
     if (!validYear.valid) {
-        return res.status(400).send(validYear.reason);
+        invalidInputs.push('year');
+        returningMessage += validYear.reason + `\n\n`;
     }
 
-
-    if (username === undefined || email === undefined) {
-        return res.status(400).send('Cannot register new user, no username and/or email was provided!');
+    //had to use this because it was saying it wasnt undefined even when it was empty
+    if (!username || username.length < 1) {
+        invalidInputs.push('username');
+        returningMessage += 'Cannot register new user, no username was provided!\n\n';
+        
     }
 
     // Validate username
     const validUsername = validateUsername(username);
     if (!validUsername.valid) {
-        return res.status(400).send(validUsername.reason);
+        invalidInputs.push('username');
+        returningMessage += validUsername.reason + `\n\n`;
     }
 
     // Validate email
     const validEmail = validateEmail(email);
     if (!validEmail.valid) {
-        return res.status(400).send(validEmail.reason);
+        invalidInputs.push('email');
+        returningMessage += validEmail.reason + `\n\n`;
     }
 
     if (password === undefined) {
-        return res.status(400).send('Cannot register new user, no password was provided!');
+        invalidInputs.push(password);
+        returningMessage += 'Cannot register new user, no password was provided!\n\n';
     }
 
     // Validate password
     const validPassword = validatePassword(password);
     if (!validPassword.valid) {
-        return res.status(400).send(validPassword.reason);
+        invalidInputs.push('password');
+        returningMessage += validPassword.reason + `\n\n`;
     }
+
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -69,12 +83,29 @@ const registerUser = async (req, res) => {
         });
 
         // Check if user already exists in DB
-        if (await User.findOne({ username }) !== null) {
-            return res.status(400).send('Cannot register new user, username already exists!');
+        //only check DB if username valid
+        if(!invalidInputs.includes('username')){
+            if (await User.findOne({ username }) !== null) {
+                invalidInputs.push('username');
+                returningMessage += 'Cannot register new user, username already exists!\n\n';
+            }
+        }
+        //only check DB if email valid
+        if(!invalidInputs.includes('email')){
+            if (await User.findOne({ email }) !== null) {
+                invalidInputs.push('email');
+                returningMessage += 'Cannot register new user, email already exists!\n\n';
+            }
         }
 
-        if (await User.findOne({ email }) !== null) {
-            return res.status(400).send('Cannot register new user, email already exists!');
+        //if there is something invalid throw error
+        if(invalidInputs.length > 0){
+            returningMessage = returningMessage.slice(0, -2);
+            //return both the error message and the invalid inputs to be used in register.js
+            return res.status(400).json({
+                message: returningMessage,
+                invalidInputs: invalidInputs
+              });
         }
 
         // Save new user to DB

@@ -56,22 +56,39 @@ export default function Register() {
       body: JSON.stringify(payload)
     }).then(res => {
       if (!res.ok) { // Login failed
-        res.text().then(text => {
-          /*
-            Display alert to user with error message
-            TODO: Create custom styled alert?
-          */
-          Alert.alert('', text, [{
+        res.json().then(data => {
+          
+          
+          const errorMessage = data.message;
+          const invalidFields = data.invalidInputs;
+
+          Alert.alert('', errorMessage, [{
             text: 'OK',
             style: 'cancel'
           }]);
+          
+                
+          //clear the fields that are invalid
+          if(invalidFields.includes('fullname')){
+            setName('');
+          }
 
-          // Clear text inputs
-          setName('');
-          setYear('');
-          setEmail('');
-          setUsername('');
-          setPassword('');
+          if(invalidFields.includes('year')){
+            setYear('');
+          }
+
+          if(invalidFields.includes('username')){
+            setUsername('');
+          }
+
+          if(invalidFields.includes('email')){
+            setEmail('');
+          }
+
+          if(invalidFields.includes('password')){
+            setPassword('');
+          }
+
         });
       } else {
         /*
