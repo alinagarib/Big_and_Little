@@ -188,7 +188,6 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 15,
-    paddingBottom: 80
   },
   picker: {
     marginVertical: -15
