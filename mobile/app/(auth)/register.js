@@ -20,7 +20,7 @@ import { validateUsername, validateEmail, validatePassword } from '@middleware/u
 export default function Register() {
   // States for text inputs
   const [name, setName] = useState('');
-  const [year, setYear] = useState('');
+  const [year, setYear] = useState('Freshman');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -55,10 +55,6 @@ export default function Register() {
     }).then(res => {
       if (!res.ok) { // Login failed
         res.text().then(text => {
-          /*
-            Display alert to user with error message
-            TODO: Create custom styled alert?
-          */
           Alert.alert('', text, [{
             text: 'OK',
             style: 'cancel'
@@ -117,7 +113,7 @@ export default function Register() {
               <Picker
                 style={styles.picker}
                 selectedValue={year}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue) =>
                   setYear(itemValue)
               }>
                 <Picker.Item label="Freshman" value="Freshman" />

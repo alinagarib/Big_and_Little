@@ -12,6 +12,10 @@ const profileSchema = new mongoose.Schema({
     maxlength: 500, // Limited to 500 characters
     default: ''
   },
+  roles: [{
+    type: String,
+    default: "Member"
+  }],
   organizationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization',
@@ -40,6 +44,4 @@ const profileSchema = new mongoose.Schema({
   timestamps: true // createdAt and updatedAt timestamps
 });
 
-const Profile = mongoose.model('Profile', profileSchema);
-
-module.exports = Profile;
+module.exports = mongoose.model('Profile', profileSchema);
