@@ -8,12 +8,9 @@ import Title from '@components/Title';
 import StyledTextInput from '@components/StyledTextInput'
 import StyledButton from '@components/StyledButton';
 
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
-
-
-
-import { validateYear, validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
+import { validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
 
 /*
   Route: /register
@@ -28,11 +25,12 @@ export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-
-
   // State for scroll fix
   const scrollViewRef = useRef(null);
   const scrollFix = useRef(false);
+
+  // State for clearing text inputs
+  const [reset, setReset] = useState(false);
 
   // Method to POST inputted data to /register server route
   const createUser = () => {
@@ -67,11 +65,7 @@ export default function Register() {
           }]);
 
           // Clear text inputs
-          setName('');
-          setYear('');
-          setEmail('');
-          setUsername('');
-          setPassword('');
+          setReset(!reset);
         });
       } else {
         /*
@@ -139,7 +133,8 @@ export default function Register() {
                 placeholder="albert@ufl.edu"
                 autoComplete="email"
                 autocorrect={false}
-                validate={validateEmail} />
+                validate={validateEmail}
+                reset={reset} />
               <StyledTextInput
                 field="Username"
                 value={username}
@@ -147,7 +142,8 @@ export default function Register() {
                 placeholder="albert"
                 autoComplete="username"
                 autocorrect={false}
-                validate={validateUsername} />
+                validate={validateUsername}
+                reset={reset} />
               <StyledTextInput
                 field="Password"
                 value={password}
@@ -157,7 +153,8 @@ export default function Register() {
                 autocorrect={false}
                 helperText="Password must be at least 8 characters"
                 validate={validatePassword}
-                secureTextEntry={true} />
+                secureTextEntry={true}
+                reset={reset} />
               <StyledButton text="Create Account" onClick={createUser} />
             </View>
           </ScrollView>

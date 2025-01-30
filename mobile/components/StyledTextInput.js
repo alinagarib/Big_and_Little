@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet } from "react-native";
 
 /* 
@@ -18,6 +18,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
     multiline: If field can span multiple lines
     numberOfLines: Number of lines to span (if multiline)
     secureTextEntry: If text input should be obscured (passwords)
+    reset: Used to trigger reset of text input
   }
   (See https://reactnative.dev/docs/textinput)
 */
@@ -45,6 +46,14 @@ export default function StyledTextInput(props) {
     // Update text of input
     props.setText(text);
   }
+
+  useEffect(() => {
+    if (props.value === "" || !props.validate) return;
+    const validateText = props.validate(props.value);
+    if (!validateText.valid) {
+      props.setText("");
+    }
+  }, [props.reset]);
 
   return (
     <View style={styles.container}>
