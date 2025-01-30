@@ -1,15 +1,57 @@
 const User = require('../models/User');
+const Profile = require('../models/Profile');
 const { Error } = require('mongoose');
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const {
-    validateYear,
-    validateUsername,
-    validateEmail,
-    validatePassword,
-} = require("../middleware/userValidation");
+
+
+const validatePassword = (password) => {
+    // Checks if its less than 8 characters
+    if (password.length < 8) {
+        return {
+            valid: false,
+            reason: "Password must be at least 8 characters!",
+        };
+    }
+
+    // Limit password to 100 characters
+    if (password.length > 100) {
+        return {
+            valid: false,
+            reason: "Password must be less than 100 characters!",
+        };
+    }
+
+    // Checks if there is an uppercase
+    if (!/[A-Z]/.test(password)) {
+        return {
+            valid: false,
+            reason: "Password must contain an uppercase letter!",
+        };
+    }
+
+    // Checks if there is a special character
+    if (!/[~`! @#$%^&*()_\-+=\{[}\]\|\:;"'<,>\.\?/]/.test(password)) {
+        return {
+            valid: false,
+            reason: "Password must contain a special character!",
+        };
+    }
+
+    // Checks if there is a number
+    if (!/[0-9]/.test(password)) {
+        return {
+            valid: false,
+            reason: "Password must contain a number!",
+        };
+    }
+
+    return {
+        valid: true,
+    };
+};
 
 // @desc Register new user
 // @route POST /register
@@ -17,44 +59,9 @@ const {
 const registerUser = async (req, res) => {
     // Parse request body and create hashed password
     const { name, year, username, email, password } = req.body;
-    if (name === undefined) {
-        return res.status(400).send('Cannot register new user, no name was provided!');
-    }
 
-    if (year === undefined) {
-        return res.status(400).send('Cannot register new user, no year was provided!');
-    }
-    // Validate year
-    const validYear = validateYear(year);
-    if (!validYear.valid) {
-        return res.status(400).send(validYear.reason);
-    }
-
-
-    if (username === undefined || email === undefined) {
-        return res.status(400).send('Cannot register new user, no username and/or email was provided!');
-    }
-
-    // Validate username
-    const validUsername = validateUsername(username);
-    if (!validUsername.valid) {
-        return res.status(400).send(validUsername.reason);
-    }
-
-    // Validate email
-    const validEmail = validateEmail(email);
-    if (!validEmail.valid) {
-        return res.status(400).send(validEmail.reason);
-    }
-
-    if (password === undefined) {
-        return res.status(400).send('Cannot register new user, no password was provided!');
-    }
-
-    // Validate password
-    const validPassword = validatePassword(password);
-    if (!validPassword.valid) {
-        return res.status(400).send(validPassword.reason);
+    if (password === undefined || password === "") {
+        return res.status(400).send("Password is required!");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -68,22 +75,15 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
 
-        // Check if user already exists in DB
-        if (await User.findOne({ username }) !== null) {
-            return res.status(400).send('Cannot register new user, username already exists!');
-        }
-
-        if (await User.findOne({ email }) !== null) {
-            return res.status(400).send('Cannot register new user, email already exists!');
-        }
-
         // Save new user to DB
         await user.save();
-        return res.status(200).json({ message: `New user '${username}' created.` });
+        
+        return res.status(200).send();
     } 
     catch (err) {
         if (err instanceof Error.ValidationError) { // User did not pass schema validation
-            return res.status(400).send(err.message);
+            const messages = Object.values(err.errors).map(e => e.message).join("\n");
+            return res.status(400).send(messages);
         } 
         else { // Server error (Probably a Mongoose connection issue)
             return res.status(500).send();
@@ -115,16 +115,54 @@ const loginUser = async (req, res) => {
             return res.status(401).send('Cannot login user, incorrect password!');
         }
 
-        // Issue JWT
-        const payload = {
-            username: user.username
+        // Get all profiles associated with the current User
+        const rolesResult = await User.aggregate([
+            {
+              $lookup: {
+                from: 'profiles',
+                localField: '_id',
+                foreignField: 'userId',
+                as: 'profileDocs'
+              }
+            },
+            {
+              $unwind: '$profileDocs'
+            },
+            {
+              $group: {
+                _id: '$_id',
+                roles: { $addToSet: '$profileDocs.roles' }, // add profile roles to result
+                organization: { $first: '$profileDocs.organizationId' } // add profile organizations to result
+              }
+            }
+        ]);
+
+        let adminOrgs = [];
+        for (let i = 0; i < rolesResult.length; i++) {
+            console.log(rolesResult[i]);
+
+            let { roles, organization } = rolesResult[i];
+
+            if (roles[i].includes('Admin')) {
+                adminOrgs.push(organization);
+            }
         }
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-            expiresIn: "7d"
-        });
+        console.log(adminOrgs);
 
-        return res.status(200).send(token);
+        // Issue JWT
+        const accessToken = jwt.sign(
+            {
+                'UserInfo': {
+                    'username': user.username,
+                    'admin_orgs': adminOrgs
+                }
+            },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: '7d' }
+        );
+
+        return res.status(200).send(accessToken);
     } 
     catch (err) { // Server error (Probably a Mongoose connection issue)
         return res.status(500).send();
