@@ -24,6 +24,7 @@ export default function ViewProfile() {
     const params = useGlobalSearchParams();
     
     // State for scroll fix
+    const scrollViewRef = useRef(null);
     const scrollFix = useRef(false);
 
     const toggleIsEditing = (edit) => {
@@ -86,14 +87,14 @@ export default function ViewProfile() {
 
     // Workaround to not hide text input helper/error text
     const handleScroll = (event) => {
-      if (this.scrollView === undefined) return;
+      if (scrollViewRef.current === undefined) return;
       if (scrollFix.current) {
         scrollFix.current = false;
       } 
       else if (Keyboard.isVisible()) {
           const height = event.nativeEvent.contentOffset.y;
           scrollFix.current = true;
-          this.scrollView.scrollTo({
+          scrollViewRef.current.scrollTo({
             x: 0,
             y: height + 50,
             animated: true
@@ -104,7 +105,7 @@ export default function ViewProfile() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
-          <View style={[styles.horizontalContainer, {marginHorizontal: 20}]}>
+          <View style={[styles.horizontalContainer]}>
             <ProfilePicture
               src={''}
               />
@@ -113,7 +114,7 @@ export default function ViewProfile() {
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <ScrollView
               style={styles.scrollContainer}
-              ref={ref => this.scrollView = ref}
+              ref={scrollViewRef}
               onMomentumScrollEnd={handleScroll}>
               <View onStartShouldSetResponder={() => true} style={styles.form}>
                 <StyledPictureInput 
@@ -165,7 +166,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     fontFamily: 'Inter',
-    paddingTop: 80
+    display: 'flex',
+    flexDirection: 'column'
   },
   buttonContainer: {
     flex: 1,
@@ -179,10 +181,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 15,
-    marginVertical: 10
+    paddingVertical: 10,
+    paddingHorizontal: 20
   },
   scrollContainer: {
-    height: '80%',
+    height: '100%',
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     borderRadius: 4,

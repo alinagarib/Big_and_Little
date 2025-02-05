@@ -5,12 +5,53 @@ const { Error } = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const {
-    validateYear,
-    validateUsername,
-    validateEmail,
-    validatePassword,
-} = require('../middleware/userValidation');
+
+
+const validatePassword = (password) => {
+    // Checks if its less than 8 characters
+    if (password.length < 8) {
+        return {
+            valid: false,
+            reason: "Password must be at least 8 characters!",
+        };
+    }
+
+    // Limit password to 100 characters
+    if (password.length > 100) {
+        return {
+            valid: false,
+            reason: "Password must be less than 100 characters!",
+        };
+    }
+
+    // Checks if there is an uppercase
+    if (!/[A-Z]/.test(password)) {
+        return {
+            valid: false,
+            reason: "Password must contain an uppercase letter!",
+        };
+    }
+
+    // Checks if there is a special character
+    if (!/[~`! @#$%^&*()_\-+=\{[}\]\|\:;"'<,>\.\?/]/.test(password)) {
+        return {
+            valid: false,
+            reason: "Password must contain a special character!",
+        };
+    }
+
+    // Checks if there is a number
+    if (!/[0-9]/.test(password)) {
+        return {
+            valid: false,
+            reason: "Password must contain a number!",
+        };
+    }
+
+    return {
+        valid: true,
+    };
+};
 
 // @desc Register new user
 // @route POST /register
@@ -19,58 +60,13 @@ const registerUser = async (req, res) => {
     // Parse request body and create hashed password
     const { name, year, username, email, password } = req.body;
 
-    //create the error message and invalid inputs list
-    invalidInputs = [];
-    returningMessage = "";
-    if (!name || name.length < 1) {
-        invalidInputs.push('fullname');
-        returningMessage += 'Cannot register new user, no name was provided!\n\n';
+    if (password === undefined || password === "") {
+        return res.status(400).send("Password is required!");
     }
-
-    if (year === undefined) {
-        invalidInputs.push('year');
-        returningMessage += 'Cannot register new user, no year was provided!\n\n';
-    }
-    // Validate year
-    const validYear = validateYear(year);
-    if (!validYear.valid) {
-        invalidInputs.push('year');
-        returningMessage += validYear.reason + `\n\n`;
-    }
-
-    //had to use this because it was saying it wasnt undefined even when it was empty
-    if (!username || username.length < 1) {
-        invalidInputs.push('username');
-        returningMessage += 'Cannot register new user, no username was provided!\n\n';
-        
-    }
-
-    // Validate username
-    const validUsername = validateUsername(username);
-    if (!validUsername.valid) {
-        invalidInputs.push('username');
-        returningMessage += validUsername.reason + `\n\n`;
-    }
-
-    // Validate email
-    const validEmail = validateEmail(email);
-    if (!validEmail.valid) {
-        invalidInputs.push('email');
-        returningMessage += validEmail.reason + `\n\n`;
-    }
-
-    if (password === undefined) {
-        invalidInputs.push(password);
-        returningMessage += 'Cannot register new user, no password was provided!\n\n';
-    }
-
-    // Validate password
     const validPassword = validatePassword(password);
     if (!validPassword.valid) {
-        invalidInputs.push('password');
-        returningMessage += validPassword.reason + `\n\n`;
+        return res.status(400).send(validPassword.reason);
     }
-
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -83,39 +79,15 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
 
-        // Check if user already exists in DB
-        //only check DB if username valid
-        if(!invalidInputs.includes('username')){
-            if (await User.findOne({ username }) !== null) {
-                invalidInputs.push('username');
-                returningMessage += 'Cannot register new user, username already exists!\n\n';
-            }
-        }
-        //only check DB if email valid
-        if(!invalidInputs.includes('email')){
-            if (await User.findOne({ email }) !== null) {
-                invalidInputs.push('email');
-                returningMessage += 'Cannot register new user, email already exists!\n\n';
-            }
-        }
-
-        //if there is something invalid throw error
-        if(invalidInputs.length > 0){
-            returningMessage = returningMessage.slice(0, -2);
-            //return both the error message and the invalid inputs to be used in register.js
-            return res.status(400).json({
-                message: returningMessage,
-                invalidInputs: invalidInputs
-              });
-        }
-
         // Save new user to DB
         await user.save();
-        return res.status(200).json({ message: `New user '${username}' created.` });
+        
+        return res.status(200).send();
     } 
     catch (err) {
         if (err instanceof Error.ValidationError) { // User did not pass schema validation
-            return res.status(400).send(err.message);
+            const messages = Object.values(err.errors).map(e => e.message).join("\n");
+            return res.status(400).send(messages);
         } 
         else { // Server error (Probably a Mongoose connection issue)
             return res.status(500).send();
@@ -147,47 +119,20 @@ const loginUser = async (req, res) => {
             return res.status(401).send('Cannot login user, incorrect password!');
         }
 
-        // Get all profiles associated with the current User
-        const rolesResult = await User.aggregate([
-            {
-              $lookup: {
-                from: 'profiles',
-                localField: '_id',
-                foreignField: 'userId',
-                as: 'profileDocs'
-              }
-            },
-            {
-              $unwind: '$profileDocs'
-            },
-            {
-              $group: {
-                _id: '$_id',
-                roles: { $addToSet: '$profileDocs.roles' }, // add profile roles to result
-                organization: { $first: '$profileDocs.organizationId' } // add profile organizations to result
-              }
-            }
-        ]);
-
-        let adminOrgs = [];
-        for (let i = 0; i < rolesResult.length; i++) {
-            console.log(rolesResult[i]);
-
-            let { roles, organization } = rolesResult[i];
-
-            if (roles[i].includes('Admin')) {
-                adminOrgs.push(organization);
-            }
-        }
-
-        console.log(adminOrgs);
+        // Fetch user profiles
+        const profiles = await Profile.find({ userId: user._id }).populate('organizationId').exec();
+        const profilesArray = profiles.map(profile => ({
+            id: profile._id,
+            isOwner: profile.organizationId.owner.equals(user._id)
+        }));
+        console.log(profilesArray);
 
         // Issue JWT
         const accessToken = jwt.sign(
             {
                 'UserInfo': {
-                    'username': user.username,
-                    'admin_orgs': adminOrgs
+                    'userId': user._id,
+                    'profiles': profilesArray
                 }
             },
             process.env.JWT_SECRET_KEY,

@@ -1,5 +1,7 @@
 import { Text, TouchableOpacity } from 'react-native';
 import { Redirect, Tabs, useRouter } from 'expo-router';
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 import { useSession } from '@context/ctx';
 
 export default function TabLayout() {
@@ -17,6 +19,7 @@ export default function TabLayout() {
   return (
     <Tabs 
       screenOptions={{
+        lazy: false,
         headerTitleAlign: 'center',
         headerLeft: () => {
           return (
@@ -38,21 +41,21 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: () => <Text>🏠</Text>
+          tabBarIcon: () => <AntDesign name="home" size={24} />
         }}
       />
       <Tabs.Screen
         name="matches"
         options={{
           title: 'Matches',
-          tabBarIcon: () => <Text>💖</Text>
+          tabBarIcon: () => <AntDesign name="hearto" size={24} />
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: () => <Text>👤</Text>
+          tabBarIcon: () => <AntDesign name="profile" size={24} />
         }}
       />
     </Tabs>

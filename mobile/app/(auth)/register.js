@@ -8,12 +8,9 @@ import Title from '@components/Title';
 import StyledTextInput from '@components/StyledTextInput'
 import StyledButton from '@components/StyledButton';
 
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
-
-
-
-import { validateYear, validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
+import { validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
 
 /*
   Route: /register
@@ -23,16 +20,17 @@ import { validateYear, validateUsername, validateEmail, validatePassword } from 
 export default function Register() {
   // States for text inputs
   const [name, setName] = useState('');
-  const [year, setYear] = useState('');
+  const [year, setYear] = useState('Freshman');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-
-
   // State for scroll fix
   const scrollViewRef = useRef(null);
   const scrollFix = useRef(false);
+
+  // State for clearing text inputs
+  const [reset, setReset] = useState(false);
 
   // Method to POST inputted data to /register server route
   const createUser = () => {
@@ -56,39 +54,14 @@ export default function Register() {
       body: JSON.stringify(payload)
     }).then(res => {
       if (!res.ok) { // Login failed
-        res.json().then(data => {
-          
-          
-          const errorMessage = data.message;
-          const invalidFields = data.invalidInputs;
-
-          Alert.alert('', errorMessage, [{
+        res.text().then(text => {
+          Alert.alert('', text, [{
             text: 'OK',
             style: 'cancel'
           }]);
-          
-                
-          //clear the fields that are invalid
-          if(invalidFields.includes('fullname')){
-            setName('');
-          }
 
-          if(invalidFields.includes('year')){
-            setYear('');
-          }
-
-          if(invalidFields.includes('username')){
-            setUsername('');
-          }
-
-          if(invalidFields.includes('email')){
-            setEmail('');
-          }
-
-          if(invalidFields.includes('password')){
-            setPassword('');
-          }
-
+          // Clear text inputs
+          setReset(!reset);
         });
       } else {
         /*
@@ -140,7 +113,7 @@ export default function Register() {
               <Picker
                 style={styles.picker}
                 selectedValue={year}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue) =>
                   setYear(itemValue)
               }>
                 <Picker.Item label="Freshman" value="Freshman" />
@@ -156,7 +129,8 @@ export default function Register() {
                 placeholder="albert@ufl.edu"
                 autoComplete="email"
                 autocorrect={false}
-                validate={validateEmail} />
+                validate={validateEmail}
+                reset={reset} />
               <StyledTextInput
                 field="Username"
                 value={username}
@@ -164,7 +138,8 @@ export default function Register() {
                 placeholder="albert"
                 autoComplete="username"
                 autocorrect={false}
-                validate={validateUsername} />
+                validate={validateUsername}
+                reset={reset} />
               <StyledTextInput
                 field="Password"
                 value={password}
@@ -174,7 +149,8 @@ export default function Register() {
                 autocorrect={false}
                 helperText="Password must be at least 8 characters"
                 validate={validatePassword}
-                secureTextEntry={true} />
+                secureTextEntry={true}
+                reset={reset} />
               <StyledButton text="Create Account" onClick={createUser} />
             </View>
           </ScrollView>
@@ -205,7 +181,6 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 15,
-    paddingBottom: 80
   },
   picker: {
     marginVertical: -15
