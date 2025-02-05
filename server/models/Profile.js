@@ -1,47 +1,41 @@
+// MONGOOSE DATA MODEL FOR PROFILES
 const mongoose = require('mongoose');
 
 const profileSchema = new mongoose.Schema({
   userId: { 
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    unique: true,
+    required: [true, "Profile must be linked to a user!"],
     ref: 'User'
   },
-  bio: {
-    type: String,
-    maxlength: 500, // Limited to 500 characters
-    default: ''
-  },
-  roles: [{
-    type: String,
-    default: "Member"
-  }],
   organizationId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Organization',
-    required: true
+    required: [true, "Profile must be linked to an organization!"],
+    ref: 'Organization'
   },
-  profilePicture: {
-    type: String, // Stores the path to the profile picture
-    validate: {
-      validator: function(v) {
-        return /\.(jpeg|jpg|png)$/i.test(v); // Only allows jpeg, jpg, png files
-      },
-      message: props => `${props.value} is not a valid image format!`
-    },
-    default: null
+  description: { // Would this make more sense to be called bio?
+    type: String,
+    maxLength: 500,
+    default: ""
   },
-  uploadPictures: {
-    type: [String], // Array of picture paths
-    validate: {
-      validator: function(arr) {
-        return arr.length <= 4; // Maximum of four pictures
-      },
-      message: props => `You can only upload a maximum of 4 pictures!`
-    }
-  }
-}, {
-  timestamps: true // createdAt and updatedAt timestamps
+  images: {
+    type: [String]
+  },
+  role: {
+    type: String,
+    required: [true, "Role is required!"],
+    enum: ['Big', 'Little']
+  },
+  numberOfLittles: { // Only applies for Bigs
+    type: Number
+  },
+  ranking: {
+    type: Map,
+    of: Number
+  },
+  profilePic: {
+    type: String,
+    default: "DEFAULT_PROFILE_PIC_ID"
+  },
 });
 
 module.exports = mongoose.model('Profile', profileSchema);
