@@ -6,9 +6,9 @@ exports.createProfile = async (req, res) => {
   try {
     const { userId, bio, organizationId, profilePicture, uploadPictures } = req.body;
 
-    // Check if uploadPictures length exceeds max limit of 4
-    if (uploadPictures && uploadPictures.length > 4) {
-      return res.status(400).json({ message: 'Maximum of 4 pictures allowed' });
+    // Check if uploadPictures length exceeds max limit of 3
+    if (uploadPictures && uploadPictures.length > 3) {
+      return res.status(400).json({ message: 'Maximum of 3 pictures allowed' });
     }
 
     const profile = new Profile({

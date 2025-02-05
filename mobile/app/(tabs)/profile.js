@@ -4,6 +4,8 @@ import { Pressable, Image, Text, TouchableWithoutFeedback, Keyboard, KeyboardAvo
 import { Link, router } from 'expo-router';
 import { useGlobalSearchParams } from 'expo-router/build/hooks';
 import Constants from "expo-constants";
+import * as ImagePicker from 'expo-image-picker';
+
 
 import Title from '@components/Title';
 import StyledTextInput from '@components/StyledTextInput';
@@ -20,6 +22,9 @@ export default function ViewProfile() {
     const [major, setMajor] = useState('');
     const [description, setDescription] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [profileName, setProfileName] = useState('');
+    
+    const [images, setImages] = useState([]);
 
     const params = useGlobalSearchParams();
     
@@ -28,6 +33,32 @@ export default function ViewProfile() {
 
     const toggleIsEditing = (edit) => {
         setIsEditing(edit);
+    };
+
+    //image picker function 
+    const pickImage = async (index) => {
+      
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+      if (permissionResult.granted === false) {
+        alert('Permission to access the camera roll is required!');
+        return;
+      }
+  
+      // Launch the image picker
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      // If the user picked an image
+      if (!result.canceled) {
+        const newImages = [...images];
+        newImages[index] = result.assets[0].uri; // Replace the image at the clicked index
+        setImages(newImages);
+      }
     };
 
     /*
@@ -107,8 +138,22 @@ export default function ViewProfile() {
           <View style={[styles.horizontalContainer, {marginHorizontal: 20}]}>
             <ProfilePicture
               src={''}
-              />
-            <Text style={styles.profileText}>Profile Name</Text>
+              /> 
+              
+                  {isEditing ? (
+                <StyledTextInput
+                  field="Name"
+                  value={profileName}
+                  setText={setProfileName}
+                  placeholder="Your name"
+                  autocorrect={false}
+                  editable={true} // Can be omitted since default is true
+                  required
+                />
+              ) : (
+                <Text style={profileName ? styles.profileText : styles.emptyContainer}>{profileName || "No name set"}</Text>
+              )}
+
           </View>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <ScrollView
@@ -116,8 +161,25 @@ export default function ViewProfile() {
               ref={ref => this.scrollView = ref}
               onMomentumScrollEnd={handleScroll}>
               <View onStartShouldSetResponder={() => true} style={styles.form}>
-                <StyledPictureInput 
-                  disabled={!isEditing} />
+                  <View style={styles.imageContainer}>
+                        {images.map((image, index) => (
+                          isEditing ? (
+                            <TouchableWithoutFeedback key={index} onPress={() => pickImage(index)}>
+                              <Image source={{ uri: image }} style={styles.image} />
+                            </TouchableWithoutFeedback>
+                          ) : (
+                            <Image key={index} source={{ uri: image }} style={styles.image} />
+                          )
+                        ))}
+                      </View>
+                  <View style={styles.buttonContainer}>
+                      
+                  {isEditing && images.length < 3 ? (
+                    <StyledButton text={"Insert Picture" } onClick={() => pickImage(images.length)} />
+                  ) : null}                      
+                  </View>
+
+
                 <Text style={{fontSize: 20}}>Interests</Text>
                 <View>
                   {interests && <View style={styles.horizontalContainer}>{interests.map((item, index) => (
@@ -129,14 +191,18 @@ export default function ViewProfile() {
                     </Pressable>
                 ))}</View>}
                 </View>
-                <StyledTextInput
+                
+                {isEditing ? (
+                  <StyledTextInput
                   field="Major"
                   value={major}
                   setText={setMajor}
                   placeholder="Your major"
                   autocorrect={false}
                   editable={isEditing}
-                  required />
+                  required />) : (<Text style={major ? styles.filledContainer : styles.emptyContainer}>{major || "No major set"}</Text>)}
+
+              {isEditing ? (
                 <StyledTextInput
                   field="Description"
                   value={description}
@@ -146,13 +212,16 @@ export default function ViewProfile() {
                   placeholder="Tell us about yourself"
                   autocorrect={false}
                   editable={isEditing}
-                  required />
+                  required />) : (<Text style={description ? styles.filledContainer : styles.emptyContainer}>{description || "No description set"}</Text>)}
               </View>
+
               <View style={styles.buttonContainer}>
-                <StyledButton text="Preview" />
-                <StyledButton text="Edit" onClick={() => toggleIsEditing(true)} />
-                <StyledButton text="Save" onClick={saveProfile} />
+                <StyledButton text={isEditing ? "Save" : "Edit" } onClick={() => {isEditing ? toggleIsEditing(false) : toggleIsEditing(true) }} />
               </View>
+
+                {/* <StyledButton text="Save" onClick={saveProfile} /> */}
+              
+              
             </ScrollView>
           </KeyboardAvoidingView>
         </View>
@@ -201,6 +270,45 @@ const styles = StyleSheet.create({
     paddingBottom: 80
   },
   profileText: {
-    fontSize: 15,
-  }
+    fontSize: 30,
+    fontWeight: 'bold',
+  },
+  emptyContainer: {
+    borderWidth: 2,
+    borderColor: "red",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#f0f0f0",
+    alignItems: "center",
+    justifyContent: "center",  
+    marginVertical: 10,
+    flexDirection: "row",
+    textAlign: "center",  
+  },
+  filledContainer: {
+    borderWidth: 2,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#fafafa", 
+    alignItems: "flex-start", 
+    justifyContent: "center", 
+    marginVertical: 10,
+    flexDirection: "row", 
+    textAlign: "left",  
+    opacity: 0.7,  
+  },
+  imageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    margin: 5,
+    borderRadius: 10,
+  },
+  
+  
 });
