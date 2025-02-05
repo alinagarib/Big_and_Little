@@ -23,8 +23,8 @@ export default function ViewProfile() {
     const [description, setDescription] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [profileName, setProfileName] = useState('');
-    
     const [images, setImages] = useState([]);
+    
 
     const params = useGlobalSearchParams();
     
@@ -178,6 +178,7 @@ export default function ViewProfile() {
                   </View>
 
 
+
                 <Text style={{fontSize: 20}}>Interests</Text>
                 <View>
                   {interests && <View style={styles.horizontalContainer}>{interests.map((item, index) => (
@@ -199,7 +200,7 @@ export default function ViewProfile() {
                   autocorrect={false}
                   editable={isEditing}
                   required />) : (<Text style={major ? styles.filledContainer : styles.emptyContainer}>{major || "No major set"}</Text>)}
-
+              
               {isEditing ? (
                 <StyledTextInput
                   field="Description"
@@ -213,9 +214,14 @@ export default function ViewProfile() {
                   required />) : (<Text style={description ? styles.filledContainer : styles.emptyContainer}>{description || "No description set"}</Text>)}
               </View>
 
+
               <View style={styles.buttonContainer}>
                 <StyledButton text={isEditing ? "Save" : "Edit" } onClick={() => {isEditing ? toggleIsEditing(false) : toggleIsEditing(true) }} />
               </View>
+
+                {/* <StyledButton text="Save" onClick={saveProfile} /> */}
+              
+              
             </ScrollView>
           </KeyboardAvoidingView>
         </View>
