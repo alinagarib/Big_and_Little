@@ -1,75 +1,101 @@
 const Profile = require('../models/Profile');
-const mongoose = require('mongoose');
 
 // Creates a new profile
-exports.createProfile = async (req, res) => {
+const createProfile = async (req, res) => {
   try {
-    const { userId, bio, organizationId, profilePicture, uploadPictures } = req.body;
+    const { organizationId, bio, images, profilePicture, role, numberOfLittles, ranking } = req.body;
+
+    // Verify required data exists
+    if (!req.userId || !organizationId || !role) {
+      return res.status(400).json({ message: 'userId, organizationId, and role fields required.' });
+    }
 
     // Check if uploadPictures length exceeds max limit of 3
-    if (uploadPictures && uploadPictures.length > 3) {
+    if (images && images.length > 3) {
       return res.status(400).json({ message: 'Maximum of 3 pictures allowed' });
     }
 
-    const profile = new Profile({
-      userId,
-      bio,
-      organizationId,
-      profilePicture,
-      uploadPictures,
-      roles: ['Member']
-    });
+    const profileObject = { userId, organizationId, bio, images, profilePicture, role, numberOfLittles, ranking };
 
-    await profile.save();
-    res.status(201).json(profile);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+    const profile = await Profile.create(profileObject);
+
+    if (profile) {
+      res.status(201).json({ message: `New profile created.` });
+    }
+    else {
+      return res.status(400).json({ message: 'Invalid profile data received.' });
+    }
+  }
+  catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
 // Get profile by user ID
-exports.getProfileByUserId = async (req, res) => {
+const getProfileByUserId = async (req, res) => {
   try {
-    const profile = await Profile.findOne({ userId: req.params.userId });
+    const { userId } = req.body;
+
+    // Verify required data exists
+    if (!userId) {
+      return res.status(400).json({ message: 'userId field required.' });
+    }
+
+    const profile = await Profile.findOne({ userId: req.userId });
+
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
     }
+
     res.json(profile);
-  } catch (error) {
+  } 
+  catch (err) {
     res.status(500).json({ message: error.message });
   }
 };
 
 // Updates profile
-exports.updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
-    const { bio, profilePicture, uploadPictures } = req.body;
+    const { bio, images, profilePicture, numberOfLittles } = req.body;
 
-    // Checks if uploadPictures length exceeds max limit, 4
-    if (uploadPictures && uploadPictures.length > 4) {
-      return res.status(400).json({ message: 'Maximum of 4 pictures allowed' });
+    // Checks if uploadPictures length exceeds max limit of 3
+    if (images && images.length > 3) {
+      return res.status(400).json({ message: 'Maximum of 3 pictures allowed' });
     }
 
-    const profile = await Profile.findOneAndUpdate(
-      { userId: req.params.userId },
-      { bio, profilePicture, uploadPictures },
-      { new: true, runValidators: true }
-    );
+    const profileObject = { };
+
+    if (bio) profileObject.bio = bio; 
+    if (images) profileObject.images = images; 
+    if (profilePicture) profileObject.profilePicture = profilePicture;
+    if (numberOfLittles) profileObject.numberOfLittles = numberOfLittles; 
+
+    const profile = await Profile.findOne({ 
+      userId: req.userId 
+    });
 
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
     }
 
     res.json(profile);
-  } catch (error) {
+  } 
+  catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
 // Deletes profile
-exports.deleteProfile = async (req, res) => {
+const deleteProfile = async (req, res) => {
   try {
-    const profile = await Profile.findOneAndDelete({ userId: req.params.userId });
+    const { userId } = req.body;
+
+    if (userId != req.userId) {
+      return res.status(401).json({ message: "Cannot delete another User's profile" })
+    }
+
+    const profile = await Profile.findOneAndDelete({ userId: req.userId });
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
     }
@@ -78,3 +104,5 @@ exports.deleteProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+module.exports = { createProfile, getProfileByUserId, updateProfile, deleteProfile }
