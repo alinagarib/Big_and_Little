@@ -6,12 +6,12 @@ const useAuth = () => {
     
     if (session) {
         const decoded = jwtDecode(session);
-        const { username, admin_orgs } = decoded.UserInfo;
+        const { userId, profiles } = decoded.UserInfo;
 
-        return { username, admin_orgs }
+        return { userId, profiles }
     }
 
-    return { username: '', admin_orgs: [] };
+    return { userId: '', profiles: [] };
 };
 
 export default useAuth;
