@@ -12,6 +12,7 @@ import StyledTextInput from '@components/StyledTextInput';
 import StyledButton from '@components/StyledButton';
 import StyledPictureInput from '@components/StyledPictureInput';
 import ProfilePicture from '@components/ProfilePicture';
+import useAuth from '@context/useAuth';
 
 /*
     route: /view-profile
@@ -25,9 +26,8 @@ export default function ViewProfile() {
     const [profileName, setProfileName] = useState('');
     const [images, setImages] = useState([]);
     
-
     const params = useGlobalSearchParams();
-    
+
     // State for scroll fix
     const scrollViewRef = useRef(null);
     const scrollFix = useRef(false);
