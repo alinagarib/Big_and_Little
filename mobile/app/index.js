@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Image } from 'react-native';
 
 import { router } from 'expo-router';
 
@@ -21,13 +21,13 @@ const register = () => {
 */
 export default function Index() {
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container}>
+     <Title></Title>
       <View style={styles.body}>
-        <Title />
         <StyledButton text="Log In" onClick={login} />
         <StyledButton text="Create Account" onClick={register} />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -45,5 +45,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 50
+  },
+  logo: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
   }
 });

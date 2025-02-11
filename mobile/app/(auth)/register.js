@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet, Image } from 'react-native';
 
 import { router } from 'expo-router';
 import Constants from "expo-constants";
@@ -8,7 +8,7 @@ import Title from '@components/Title';
 import StyledTextInput from '@components/StyledTextInput'
 import StyledButton from '@components/StyledButton';
 
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
 
 
@@ -29,12 +29,13 @@ export default function Register() {
   const [password, setPassword] = useState('');
 
 
-
   // State for scroll fix
   const scrollFix = useRef(false);
+  const scrollViewRef = useRef(null);
 
   // Method to POST inputted data to /register server route
   const createUser = () => {
+    console.log("create account button clicked");
     const payload = {
       name: name,
       year: year,
@@ -54,12 +55,15 @@ export default function Register() {
       },
       body: JSON.stringify(payload)
     }).then(res => {
+      console.log("payload received");
       if (!res.ok) { // Login failed
         res.text().then(text => {
           /*
             Display alert to user with error message
             TODO: Create custom styled alert?
+            
           */
+         console.log("create account failed");
           Alert.alert('', text, [{
             text: 'OK',
             style: 'cancel'
@@ -88,13 +92,16 @@ export default function Register() {
     } else if (Keyboard.isVisible()) {
       const height = event.nativeEvent.contentOffset.y;
       scrollFix.current = true;
-      this.scrollView.scrollTo({
-        x: 0,
-        y: height + 50,
-        animated: true
-      });
+
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ 
+          x: 0,
+          y: height + 50,
+          animated: true
+        });
+      }
     }
-  }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -105,10 +112,10 @@ export default function Register() {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <ScrollView
             style={styles.scrollContainer}
-            ref={ref => this.scrollView = ref}
+            ref={scrollViewRef}
             onMomentumScrollEnd={handleScroll}>
             <View onStartShouldSetResponder={() => true} style={styles.form}>
-          
+
               <StyledTextInput
                 field="Name"
                 value={name}
@@ -117,8 +124,8 @@ export default function Register() {
                 autoComplete="name"
                 autocorrect={false}
                 required />
-              
-                <Picker
+
+              <Picker
                 selectedValue={year}
                 onValueChange={(itemValue, itemIndex) =>
                   setYear(itemValue)
