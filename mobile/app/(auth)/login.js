@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
 
+import Constants from "expo-constants";
 import { Link, router } from 'expo-router';
 
 import Title from '@components/Title';
@@ -25,26 +26,43 @@ export default function Login() {
 
   // Method to POST inputted data to /login server route
   const loginUser = async () => {
+    console.log("login pressed");
     const payload = {
       userID: userID,
       password: password
-    }
+    };
+   
+    const URI = Constants.expoConfig.hostUri.split(':').shift();
+    
+    fetch(`http://${URI}:5000/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    }).then(res => {
+      console.log("Response status:", res.status); 
+        if (!res.ok) { // Login failed
+          console.log('failed');
+          res.text().then(text => {
+            Alert.alert('', text, [{
+              text: 'OK',
+              style: 'cancel'
+            }]);
 
-    const result = await signIn(payload);
-
-    if (!result.success) {
-      Alert.alert('', result.message, [{
-        text: 'OK',
-        style: 'cancel'
-      }]);
-
-      // Clear text inputs
-      setUserID('');
-      setPassword('');
-    } else {
-      router.navigate('/home');
-    }
-  }
+            // Clear text inputs
+            setUserID('');
+            setPassword('');
+          });
+          } else {
+            console.log('success');
+            Alert.alert('', 'Login Successful', [{ text: 'OK', style: 'cancel' }]);
+            
+            router.navigate('/home');
+          }
+      })
+      .catch(err => console.log(err));
+  };
 
   // TODO: Need to implement forgot password
   const forgotPassword = () => {
@@ -53,7 +71,7 @@ export default function Login() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <View style={styles.titleSection}>

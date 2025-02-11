@@ -45,9 +45,12 @@ export default function Register() {
 
     // Get IP that Expo server is using to host app, allows to connect with the backend
     const URI = Constants.expoConfig.hostUri.split(':').shift();
+    console.log(URI);
+    const fullUrl = `http://${URI}:5000/api/auth/register`;
+    console.log("Full URL:", fullUrl);
 
     // POST to /login with payload
-    fetch(`http://localhost:5000/api/auth/register`, {
+    fetch(`http://${URI}:5000/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -71,7 +74,7 @@ export default function Register() {
         */
         router.navigate('/login');
       }
-    });
+    }).catch(err => console.log(err));
   }
 
   // Workaround to not hide text input helper/error text

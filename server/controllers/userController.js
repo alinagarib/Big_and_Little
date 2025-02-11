@@ -80,7 +80,7 @@ const registerUser = async (req, res) => {
         });
 
         // Save new user to DB
-        await user.save();
+        await newUser.save();
         
         return res.status(200).send();
     } 
@@ -101,6 +101,7 @@ const registerUser = async (req, res) => {
 // @route POST /login
 // @access Public
 const loginUser = async (req, res) => {
+    console.log("📥 Received Data:", req.body);
     const { userID, password } = req.body;
     if (userID === undefined || password === undefined) {
         return res.status(400).send('Cannot login user, please provide a userID and password!');
@@ -127,7 +128,8 @@ const loginUser = async (req, res) => {
             id: profile._id,
             isOwner: profile.organizationId.owner.equals(user._id)
         }));
-        console.log(profilesArray);
+        console.log("✅ Login successful for user:", user.username || user.email);
+        console.log("🛂 Issuing JWT...");
 
         // Issue JWT
         const accessToken = jwt.sign(
@@ -144,8 +146,10 @@ const loginUser = async (req, res) => {
         return res.status(200).send(accessToken);
     } 
     catch (err) { // Server error (Probably a Mongoose connection issue)
-        return res.status(500).send();
+        console.error("❌ Server error during login:", err);
+        return res.status(500).json({ message: 'Internal Server Error', error: err.message });
     }
+    
 }
 
 module.exports = { registerUser, loginUser };
