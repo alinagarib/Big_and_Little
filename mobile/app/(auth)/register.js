@@ -10,10 +10,7 @@ import StyledButton from '@components/StyledButton';
 
 import { Picker } from '@react-native-picker/picker';
 
-
-
-
-import { validateYear, validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
+import { validateUsername, validateEmail, validatePassword } from '@middleware/userValidation';
 
 /*
   Route: /register
@@ -23,15 +20,17 @@ import { validateYear, validateUsername, validateEmail, validatePassword } from 
 export default function Register() {
   // States for text inputs
   const [name, setName] = useState('');
-  const [year, setYear] = useState('');
+  const [year, setYear] = useState('Freshman');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-
   // State for scroll fix
-  const scrollFix = useRef(false);
   const scrollViewRef = useRef(null);
+  const scrollFix = useRef(false);
+
+  // State for clearing text inputs
+  const [reset, setReset] = useState(false);
 
   // Method to POST inputted data to /register server route
   const createUser = () => {
@@ -58,23 +57,13 @@ export default function Register() {
       console.log("payload received");
       if (!res.ok) { // Login failed
         res.text().then(text => {
-          /*
-            Display alert to user with error message
-            TODO: Create custom styled alert?
-            
-          */
-         console.log("create account failed");
           Alert.alert('', text, [{
             text: 'OK',
             style: 'cancel'
           }]);
 
           // Clear text inputs
-          setName('');
-          setYear('');
-          setEmail('');
-          setUsername('');
-          setPassword('');
+          setReset(!reset);
         });
       } else {
         /*
@@ -87,21 +76,19 @@ export default function Register() {
 
   // Workaround to not hide text input helper/error text
   const handleScroll = (event) => {
+    if (scrollViewRef.current === undefined) return;
     if (scrollFix.current) {
       scrollFix.current = false;
     } else if (Keyboard.isVisible()) {
       const height = event.nativeEvent.contentOffset.y;
       scrollFix.current = true;
-
-      if (scrollViewRef.current) {
-        scrollViewRef.current.scrollTo({ 
-          x: 0,
-          y: height + 50,
-          animated: true
-        });
-      }
+      scrollViewRef.current.scrollTo({
+        x: 0,
+        y: height + 50,
+        animated: true
+      });
     }
-  };
+  }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -124,14 +111,15 @@ export default function Register() {
                 autoComplete="name"
                 autocorrect={false}
                 required />
-
+              
               <Picker
+                style={styles.picker}
                 selectedValue={year}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue) =>
                   setYear(itemValue)
-                }>
-                <Picker.Item label="Freshmen" value="Freshmen" />
-                <Picker.Item label="Sophmore" value="Sophmore" />
+              }>
+                <Picker.Item label="Freshman" value="Freshman" />
+                <Picker.Item label="Sophomore" value="Sophomore" />
                 <Picker.Item label="Junior" value="Junior" />
                 <Picker.Item label="Senior" value="Senior" />
               </Picker>
@@ -143,7 +131,8 @@ export default function Register() {
                 placeholder="albert@ufl.edu"
                 autoComplete="email"
                 autocorrect={false}
-                validate={validateEmail} />
+                validate={validateEmail}
+                reset={reset} />
               <StyledTextInput
                 field="Username"
                 value={username}
@@ -151,7 +140,8 @@ export default function Register() {
                 placeholder="albert"
                 autoComplete="username"
                 autocorrect={false}
-                validate={validateUsername} />
+                validate={validateUsername}
+                reset={reset} />
               <StyledTextInput
                 field="Password"
                 value={password}
@@ -160,7 +150,9 @@ export default function Register() {
                 autoComplete="current-password"
                 autocorrect={false}
                 helperText="Password must be at least 8 characters"
-                validate={validatePassword} />
+                validate={validatePassword}
+                secureTextEntry={true}
+                reset={reset} />
               <StyledButton text="Create Account" onClick={createUser} />
             </View>
           </ScrollView>
@@ -174,8 +166,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    fontFamily: 'Inter',
-    paddingTop: 80
+    fontFamily: 'Inter'
   },
   titleSection: {
     height: '40%',
@@ -192,6 +183,8 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 15,
-    paddingBottom: 80
+  },
+  picker: {
+    marginVertical: -15
   }
 });

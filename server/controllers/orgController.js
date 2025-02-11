@@ -1,3 +1,4 @@
+// OUTDATED
 const Organization = require('../models/Organization');
 const { Error } = require('mongoose');
 

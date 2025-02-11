@@ -81,7 +81,7 @@ export default function SwipePage() {
     <View style={styles.container}>
       {/* Animated wrapper */}
       <Animated.View style={[styles.animatedContainer, { transform: [{ translateX: swipeAnim }] }]}>
-        <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
+        <ScrollView style={styles.scrollView}>
           {/* Profile Header */}
           <View style={styles.profileHeader}>
             <Image style={styles.profilePicture} source={{ uri: currentProfile.image }} />
@@ -124,19 +124,6 @@ export default function SwipePage() {
           </View>
         </ScrollView>
       </Animated.View>
-
-      {/* Navbar */}
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => console.log("Home pressed")}>
-          <FontAwesome name="home" size={32} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log("Matches pressed")}>
-          <FontAwesome name="heart" size={32} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log("Profile pressed")}>
-          <FontAwesome name="user" size={32} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -146,13 +133,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    paddingBottom: 75, // space for the navbar
   },
   animatedContainer: {
     flex: 1, //  entire profile view is animated
-  },
-  scrollContent: {
-    paddingBottom: 20,
   },
   scrollView: {
     paddingHorizontal: 20,
@@ -161,7 +144,7 @@ const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 60,
+    marginTop: 20,
   },
   profilePicture: {
     width: 60,

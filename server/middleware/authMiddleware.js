@@ -14,7 +14,8 @@ const verifyToken = (req, res, next) => {
     // Verify JWT
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        req.username = decoded.username;
+        req.userId = decoded.UserInfo.userId;
+        req.profiles = decoded.UserInfo.profiles;
         next();
     } catch (err) {
         return res.status(401).send("Cannot access resource, invalid JWT!");

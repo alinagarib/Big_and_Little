@@ -2,37 +2,38 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    year: {
-        type: String,
-        required: true,
-        enum: ['Freshman', 'Sophomore', 'Junior', 'Senior']
-    },
     username: {
         type: String,
-        required: true
+        required: [true, "Username is required!"],
+        unique: [true, "Username is already taken!"],
+        maxLength: [100, "Username must be less than 100 characters!"]
     },
     email: {
         type: String,
-        required: true
+        required: [true, "Email is required!"],
+        unique: [true, "Email is already in use!"],
+        validate: {
+            validator: (v) => {
+                return /^[a-z0-9.-]+@ufl\.edu$/i.test(v);
+            },
+            message: () => "Email must be from @ufl.edu!"
+        }
     },
     password: { 
         type: String,
         required: true
     },
-    roles: [{
+    name: {
         type: String,
-        default: "Member"
-    }],
-    // TODO: Determine user preferences (not necessary at account creation)
-    // NOTE: User preferences may be better stored as an object e.g. { prefID: <int ID>, userPref: <bool pref> }
-    preferences: [{
+        required: [true, "Name is required!"]
+    },
+    year: {
         type: String,
-        required: false
-    }]
+        required: [true, "Year is required!"],
+        enum: ['Freshman', 'Sophomore', 'Junior', 'Senior']
+    }
 });
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

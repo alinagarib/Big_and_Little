@@ -1,9 +1,11 @@
-import { View, StyleSheet, KeyboardAvoidingView, Image } from 'react-native';
+import { Text, View, StyleSheet, KeyboardAvoidingView, Image } from 'react-native';
 
-import { router } from 'expo-router';
+import { Redirect, router, usePathname } from 'expo-router';
 
 import Title from '@components/Title';
 import StyledButton from '@components/StyledButton';
+
+import { useSession } from "@context/ctx";
 
 // Create button onClick methods
 const login = () => {
@@ -20,14 +22,25 @@ const register = () => {
   Displays login and create account buttons
 */
 export default function Index() {
+  const { session, isLoading } = useSession();
+  const pathname = usePathname();
+
+  // If user is already logged in, redirect directly to home
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+  if (session && pathname === '/') {
+    return <Redirect href="/home" />;
+  }
+
   return (
-    <KeyboardAvoidingView style={styles.container}>
-     <Title></Title>
+    <View style={styles.container}>
       <View style={styles.body}>
+        <Title />
         <StyledButton text="Log In" onClick={login} />
         <StyledButton text="Create Account" onClick={register} />
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -45,10 +58,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 50
-  },
-  logo: {
-    width: 300,
-    height: 300,
-    resizeMode: 'contain',
   }
 });

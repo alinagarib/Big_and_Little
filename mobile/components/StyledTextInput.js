@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet } from "react-native";
 
 /* 
@@ -14,6 +14,11 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
     helperText: Helper text for text input
     validate: Function used to validate input
     required: If field is required
+    editable: If field can actively be edited
+    multiline: If field can span multiple lines
+    numberOfLines: Number of lines to span (if multiline)
+    secureTextEntry: If text input should be obscured (passwords)
+    reset: Used to trigger reset of text input
   }
   (See https://reactnative.dev/docs/textinput)
 */
@@ -31,14 +36,24 @@ export default function StyledTextInput(props) {
         setReason(validateText.reason);
       }
       setInvalid(!validateText.valid);
-    } else if (props.required && text === "") {
-      setReason(`${props.field} is required.`);
-      setInvalid(true);
+    } else if (props.required) {
+      if (text === "") {
+        setReason(`${props.field} is required.`);
+      }
+      setInvalid(text === "");
     }
 
     // Update text of input
     props.setText(text);
   }
+
+  useEffect(() => {
+    if (props.value === "" || !props.validate) return;
+    const validateText = props.validate(props.value);
+    if (!validateText.valid) {
+      props.setText("");
+    }
+  }, [props.reset]);
 
   return (
     <View style={styles.container}>
@@ -49,7 +64,11 @@ export default function StyledTextInput(props) {
         value={props.value}
         placeholder={props.placeholder}
         autoComplete={props.autoComplete}
-        autoCorrect={props.autoCorrect} />
+        autoCorrect={props.autoCorrect} 
+        editable={props.editable}
+        multiline={props.multiline}
+        numberOfLines={props.numberOfLines}
+        secureTextEntry={props.secureTextEntry}/>
       {(props.helperText || invalid) && (
         invalid ? 
           <Text style={styles.invalidText}>{reason}</Text> :
