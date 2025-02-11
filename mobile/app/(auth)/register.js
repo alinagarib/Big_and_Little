@@ -48,7 +48,7 @@ export default function Register() {
     const URI = Constants.expoConfig.hostUri.split(':').shift();
 
     // POST to /login with payload
-    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/register`, {
+    fetch(`http://localhost:5000/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

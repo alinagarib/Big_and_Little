@@ -15,52 +15,21 @@ const {
 // @route POST /register
 // @access Public
 const registerUser = async (req, res) => {
+    console.log("📥 Received Data:", req.body);
     // Parse request body and create hashed password
     const { name, year, username, email, password } = req.body;
-    if (name === undefined) {
-        return res.status(400).send('Cannot register new user, no name was provided!');
+    
+    if (password === undefined || password === "") {
+        return res.status(400).send("Password is required!");
     }
-
-    if (year === undefined) {
-        return res.status(400).send('Cannot register new user, no year was provided!');
-    }
-    // Validate year
-    const validYear = validateYear(year);
-    if (!validYear.valid) {
-        return res.status(400).send(validYear.reason);
-    }
-
-
-    if (username === undefined || email === undefined) {
-        return res.status(400).send('Cannot register new user, no username and/or email was provided!');
-    }
-
-    // Validate username
-    const validUsername = validateUsername(username);
-    if (!validUsername.valid) {
-        return res.status(400).send(validUsername.reason);
-    }
-
-    // Validate email
-    const validEmail = validateEmail(email);
-    if (!validEmail.valid) {
-        return res.status(400).send(validEmail.reason);
-    }
-
-    if (password === undefined) {
-        return res.status(400).send('Cannot register new user, no password was provided!');
-    }
-
-    // Validate password
     const validPassword = validatePassword(password);
     if (!validPassword.valid) {
         return res.status(400).send(validPassword.reason);
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-        const user = new User({
+        const newUser = new User({
             name,
             year,
             username,
@@ -68,25 +37,34 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
 
-        // Check if user already exists in DB
-        if (await User.findOne({ username }) !== null) {
-            return res.status(400).send('Cannot register new user, username already exists!');
-        }
-
-        if (await User.findOne({ email }) !== null) {
-            return res.status(400).send('Cannot register new user, email already exists!');
-        }
-
         // Save new user to DB
-        await user.save();
-        return res.status(200).json({ message: `New user '${username}' created.` });
-    } 
+        await newUser.save();
+
+        // const token = jwt.sign(
+        //     { id: newUser._id, username: newUser.username },
+        //     process.env.JWT_SECRET,
+        //     { expiresIn: "7d" } 
+        // );
+
+        return res.status(201).json({
+            message: `New user '${username}' created.`,
+            user: {
+                id: newUser._id,
+                name: newUser.name,
+                username: newUser.username,
+                email: newUser.email
+            },
+            // token
+        });
+    }
     catch (err) {
+        console.error("❌ Error occurred:", err);
         if (err instanceof Error.ValidationError) { // User did not pass schema validation
             return res.status(400).send(err.message);
-        } 
+        }
         else { // Server error (Probably a Mongoose connection issue)
-            return res.status(500).send();
+            console.error("Server error:", err);
+            return res.status(500).json({ error: "Internal Server Error", details: err.message });
         }
     }
 }
@@ -99,13 +77,13 @@ const loginUser = async (req, res) => {
     if (userID === undefined || password === undefined) {
         return res.status(400).send('Cannot login user, please provide a userID and password!');
     }
-    
+
     try {
         // Check if user with username or email exists in DB
         const user = await User.findOne({
             $or: [{ username: userID }, { email: userID }]
         });
-        
+
         if (user === null) {
             return res.status(400).send(`Cannot login user, user with username/email ${userID} does not exist!`);
         }
@@ -131,7 +109,7 @@ const loginUser = async (req, res) => {
         });
 
         return res.status(200).json({ message: `User '${user.username}' logged in.` });
-    } 
+    }
     catch (err) { // Server error (Probably a Mongoose connection issue)
         return res.status(500).send();
     }
