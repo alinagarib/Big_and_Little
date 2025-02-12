@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, KeyboardAvoidingView, Image } from 'react-native';
 
 import { Redirect, router, usePathname } from 'expo-router';
 

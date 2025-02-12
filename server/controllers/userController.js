@@ -57,6 +57,7 @@ const validatePassword = (password) => {
 // @route POST /register
 // @access Public
 const registerUser = async (req, res) => {
+    console.log("📥 Received Data:", req.body);
     // Parse request body and create hashed password
     const { name, year, username, email, password } = req.body;
 
@@ -67,11 +68,10 @@ const registerUser = async (req, res) => {
     if (!validPassword.valid) {
         return res.status(400).send(validPassword.reason);
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-        const user = new User({
+        const newUser = new User({
             name,
             year,
             username,
@@ -80,17 +80,19 @@ const registerUser = async (req, res) => {
         });
 
         // Save new user to DB
-        await user.save();
+        await newUser.save();
         
         return res.status(200).send();
     } 
     catch (err) {
+        console.error("❌ Error occurred:", err);
         if (err instanceof Error.ValidationError) { // User did not pass schema validation
             const messages = Object.values(err.errors).map(e => e.message).join("\n");
             return res.status(400).send(messages);
         } 
         else { // Server error (Probably a Mongoose connection issue)
-            return res.status(500).send();
+            console.error("Server error:", err);
+            return res.status(500).json({ error: "Internal Server Error", details: err.message });
         }
     }
 }
@@ -99,17 +101,18 @@ const registerUser = async (req, res) => {
 // @route POST /login
 // @access Public
 const loginUser = async (req, res) => {
+    console.log("📥 Received Data:", req.body);
     const { userID, password } = req.body;
     if (userID === undefined || password === undefined) {
         return res.status(400).send('Cannot login user, please provide a userID and password!');
     }
-    
+
     try {
         // Check if user with username or email exists in DB
         const user = await User.findOne({
             $or: [{ username: userID }, { email: userID }]
         });
-        
+
         if (user === null) {
             return res.status(400).send(`Cannot login user, user with username/email ${userID} does not exist!`);
         }
@@ -125,7 +128,8 @@ const loginUser = async (req, res) => {
             id: profile._id,
             isOwner: profile.organizationId.owner.equals(user._id)
         }));
-        console.log(profilesArray);
+        console.log("✅ Login successful for user:", user.username || user.email);
+        console.log("🛂 Issuing JWT...");
 
         // Issue JWT
         const accessToken = jwt.sign(
@@ -142,8 +146,10 @@ const loginUser = async (req, res) => {
         return res.status(200).send(accessToken);
     } 
     catch (err) { // Server error (Probably a Mongoose connection issue)
-        return res.status(500).send();
+        console.error("❌ Server error during login:", err);
+        return res.status(500).json({ message: 'Internal Server Error', error: err.message });
     }
+    
 }
 
 module.exports = { registerUser, loginUser };

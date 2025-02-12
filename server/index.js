@@ -29,8 +29,8 @@ app.get('/', (req, res) => {
 });
 
 // Auth Routes
-app.use('/', require('./routes/userRoutes'));
-app.use('/', require('./routes/profileRoutes'));
+app.use('/api/auth', require('./routes/userRoutes'));
+app.use('/api/auth', require('./routes/loginRoutes'));
 
 // Protected Routes
 /* Use authMiddleware
