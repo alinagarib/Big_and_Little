@@ -27,6 +27,7 @@ const organizationSchema = new mongoose.Schema({
   joinCode: { // Should this be automatically generated or set by the owner?
     type: Number, // Should this be a number/alphanumeric/etc.?
     required: true,
+    unique: true
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

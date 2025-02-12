@@ -6,7 +6,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 export default function Title() {
   return (
     <View style={styles.container}>
-        <Image style={styles.logo} source={require('../assets/BLLogo.png')}></Image>   
+        <Image style={styles.logo} source={require('@assets/BLLogo.png')}></Image>   
     </View>
   );
 };
