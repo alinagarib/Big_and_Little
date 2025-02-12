@@ -57,7 +57,6 @@ const validatePassword = (password) => {
 // @route POST /register
 // @access Public
 const registerUser = async (req, res) => {
-    console.log("📥 Received Data:", req.body);
     // Parse request body and create hashed password
     const { name, year, username, email, password } = req.body;
 
@@ -101,7 +100,6 @@ const registerUser = async (req, res) => {
 // @route POST /login
 // @access Public
 const loginUser = async (req, res) => {
-    console.log("📥 Received Data:", req.body);
     const { userID, password } = req.body;
     if (userID === undefined || password === undefined) {
         return res.status(400).send('Cannot login user, please provide a userID and password!');
@@ -128,8 +126,6 @@ const loginUser = async (req, res) => {
             id: profile._id,
             isOwner: profile.organizationId.owner.equals(user._id)
         }));
-        console.log("✅ Login successful for user:", user.username || user.email);
-        console.log("🛂 Issuing JWT...");
 
         // Issue JWT
         const accessToken = jwt.sign(
