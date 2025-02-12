@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet, Image } from 'react-native';
 
 import { router } from 'expo-router';
 import Constants from "expo-constants";
@@ -46,7 +46,7 @@ export default function Register() {
     const URI = Constants.expoConfig.hostUri.split(':').shift();
 
     // POST to /login with payload
-    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/register`, {
+    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -69,7 +69,7 @@ export default function Register() {
         */
         router.navigate('/login');
       }
-    });
+    }).catch(err => console.log(err));
   }
 
   // Workaround to not hide text input helper/error text
@@ -100,7 +100,7 @@ export default function Register() {
             ref={scrollViewRef}
             onMomentumScrollEnd={handleScroll}>
             <View onStartShouldSetResponder={() => true} style={styles.form}>
-          
+
               <StyledTextInput
                 field="Name"
                 value={name}

@@ -6,12 +6,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 export default function Title() {
   return (
     <View style={styles.container}>
-      <View>
-        <Text style={styles.titleText}>Big &</Text>
-        <Text style={styles.titleText}>Little</Text>
-      </View>
-      {/* Needs to be updated with our actual logo in assets/ */}
-      <Image style={styles.logo} source={{uri: "https://static-00.iconduck.com/assets.00/figma-logo-icon-1404x2048-8gfy4r91.png"}}/>
+        <Image style={styles.logo} source={require('@assets/BLLogo.png')}></Image>   
     </View>
   );
 };
@@ -28,8 +23,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 250,
+    height: 250,
     resizeMode: 'contain'
   }
 });

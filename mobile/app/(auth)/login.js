@@ -28,23 +28,21 @@ export default function Login() {
     const payload = {
       userID: userID,
       password: password
-    }
-
+    };
+   
     const result = await signIn(payload);
-
     if (!result.success) {
       Alert.alert('', result.message, [{
         text: 'OK',
         style: 'cancel'
       }]);
-
       // Clear text inputs
       setUserID('');
       setPassword('');
     } else {
       router.navigate('/home');
     }
-  }
+  };
 
   // TODO: Need to implement forgot password
   const forgotPassword = () => {
@@ -53,7 +51,7 @@ export default function Login() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <View style={styles.titleSection}>

@@ -1,19 +1,8 @@
 import { Text, TouchableOpacity } from 'react-native';
-import { Redirect, Tabs, useRouter } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-import { useSession } from '@context/ctx';
-
-export default function TabLayout() {
-  const { session, signOut, isLoading } = useSession();
-
-  if (isLoading) {
-    return <Text>Loading...</Text>;
-  }
-  if (!session) {
-    return <Redirect href="/" />;
-  }
-
+export default function OrgLayout() {
   const router = useRouter();
 
   return (
@@ -24,31 +13,37 @@ export default function TabLayout() {
         headerLeft: () => {
           return (
             <TouchableOpacity onPress={() => { 
-              signOut();
               if (router.canDismiss()) {
                 router.dismiss();
               } else {
                 router.navigate('/');
               }
             }}>
-              <Text style={{ marginLeft: 10 }}>Logout</Text>
+              <Text style={{ marginLeft: 10 }}>Back</Text>
             </TouchableOpacity>
           )
         }
       }}
     >
       <Tabs.Screen
-        name="explore"
+        name="profile"
         options={{
-          title: 'Explore',
-          tabBarIcon: () => <AntDesign name="find" size={24} />
+          title: 'Profile',
+          tabBarIcon: () => <AntDesign name="user" size={24} />
         }}
       />
       <Tabs.Screen
-        name="home"
+        name="matches"
         options={{
-          title: 'Home',
-          tabBarIcon: () => <AntDesign name="home" size={24} />
+          title: 'Matches',
+          tabBarIcon: () => <AntDesign name="hearto" size={24} />
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: () => <AntDesign name="hearto" size={24} />
         }}
       />
     </Tabs>

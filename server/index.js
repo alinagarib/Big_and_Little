@@ -31,6 +31,8 @@ app.get('/', (req, res) => {
 // Auth Routes
 app.use('/', require('./routes/userRoutes'));
 app.use('/', require('./routes/profileRoutes'));
+app.use('/', require('./routes/orgRoutes'));
+app.use('/', require('./routes/imageRoutes'));
 
 // Protected Routes
 /* Use authMiddleware
