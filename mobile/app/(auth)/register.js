@@ -45,19 +45,15 @@ export default function Register() {
 
     // Get IP that Expo server is using to host app, allows to connect with the backend
     const URI = Constants.expoConfig.hostUri.split(':').shift();
-    console.log(URI);
-    const fullUrl = `http://${URI}:5000/api/auth/register`;
-    console.log("Full URL:", fullUrl);
 
     // POST to /login with payload
-    fetch(`http://${URI}:5000/api/auth/register`, {
+    fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     }).then(res => {
-      console.log("payload received");
       if (!res.ok) { // Login failed
         res.text().then(text => {
           Alert.alert('', text, [{

@@ -129,8 +129,6 @@ const loginUser = async (req, res) => {
             isOwner: profile.organizationId.owner.equals(user._id)
         }));
         console.log("✅ Login successful for user:", user.username || user.email);
-        console.log("🛂 Issuing JWT...");
-
         // Issue JWT
         const accessToken = jwt.sign(
             {

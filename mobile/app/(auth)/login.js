@@ -32,38 +32,21 @@ export default function Login() {
       password: password
     };
    
-    const URI = Constants.expoConfig.hostUri.split(':').shift();
-    
-    fetch(`http://${URI}:5000/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    }).then(res => {
-      console.log("Response status:", res.status); 
-        if (!res.ok) { // Login failed
-          console.log('failed');
-          res.text().then(text => {
-            Alert.alert('', text, [{
-              text: 'OK',
-              style: 'cancel'
-            }]);
+    const result = await signIn(payload);
 
-            // Clear text inputs
-            setUserID('');
-            setPassword('');
-          });
-          } else {
-            console.log('success');
-            Alert.alert('', 'Login Successful', [{ text: 'OK', style: 'cancel' }]);
-            
-            router.navigate('/home');
-          }
-      })
-      .catch(err => console.log(err));
-  };
+    if (!result.success) {
+      Alert.alert('', result.message, [{
+        text: 'OK',
+        style: 'cancel'
+      }]);
 
+      // Clear text inputs
+      setUserID('');
+      setPassword('');
+    } else {
+      router.navigate('/home');
+    }
+  }
   // TODO: Need to implement forgot password
   const forgotPassword = () => {
 
