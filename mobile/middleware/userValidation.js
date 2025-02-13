@@ -13,6 +13,12 @@ const validateYear = (year) => {
 }
 
 const validateUsername = (username) => {
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+        return {
+            valid: false,
+            reason: "Username must be alphanumeric (no spaces or special characters)!",
+        };
+    }
     // Limit username to 100 characters
     if (username.length > 100) {
         return {
