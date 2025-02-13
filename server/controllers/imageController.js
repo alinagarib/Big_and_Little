@@ -53,7 +53,7 @@ const getImage = (req, res) => {
   }
 
   // TODO: Retrieve image from service
-  let image = "Please use MOCK_IMAGE_ID";
+  let image = `Please use ${MOCK_IMAGE_ID}`;
   if (id === MOCK_IMAGE_ID) {
     switch (bucket) {
       case "profile": {
