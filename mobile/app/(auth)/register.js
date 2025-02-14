@@ -34,7 +34,6 @@ export default function Register() {
 
   // Method to POST inputted data to /register server route
   const createUser = () => {
-    console.log("create account button clicked");
     const payload = {
       name: name,
       year: year,

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, Text, Pressable, StyleSheet } from 'react-native';
 
-import Constants from "expo-constants";
 import { Link, router } from 'expo-router';
 
 import Title from '@components/Title';
@@ -26,27 +25,25 @@ export default function Login() {
 
   // Method to POST inputted data to /login server route
   const loginUser = async () => {
-    console.log("login pressed");
     const payload = {
       userID: userID,
       password: password
     };
    
     const result = await signIn(payload);
-
     if (!result.success) {
       Alert.alert('', result.message, [{
         text: 'OK',
         style: 'cancel'
       }]);
-
       // Clear text inputs
       setUserID('');
       setPassword('');
     } else {
       router.navigate('/home');
     }
-  }
+  };
+
   // TODO: Need to implement forgot password
   const forgotPassword = () => {
 
