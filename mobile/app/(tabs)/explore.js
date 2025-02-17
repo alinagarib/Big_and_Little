@@ -1,5 +1,5 @@
 import Constants from "expo-constants";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 
 import Loading from "@components/Loading";
@@ -8,6 +8,7 @@ import StyledButton from "@components/StyledButton";
 import { View, StyleSheet, FlatList } from "react-native";
 
 export default function Explore() {
+  const router = useRouter();   
   const [loading, setLoading] = useState(true);
   const [orgs, setOrgs] = useState([]);
 
@@ -52,10 +53,13 @@ export default function Explore() {
           <View style={styles.button}>
             <StyledButton
               text="Create New Organization" 
-            />
+              onClick={() => { 
+                console.log("Navigating to modal...");
+                router.push("/create-org");           
+              }} />
           </View>
         </View>
-      }
+      } 
     </View>
   );
 }
