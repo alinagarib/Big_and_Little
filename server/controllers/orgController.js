@@ -44,9 +44,6 @@ const createOrganization = async (req, res) => {
     if (!name) {
         return res.status(400).json({ message: "Organization name is required" });
     }
-    console.log(name);
-    console.log(description);
-    console.log(owner);
 
     try {
         const joinCode = await generateUniqueJoinCode();
@@ -57,7 +54,7 @@ const createOrganization = async (req, res) => {
             isPublic: true,
             isMatching: false,
             joinCode: joinCode,
-            owner: owner, // This should be a valid Profile ObjectId
+            owner: owner, // This should be a valid Profile ObjectId, rn it is a userID
             members: [owner], // Add owner as the first member
             rounds: 3,
             roundWeighting: [1, 3, 5],

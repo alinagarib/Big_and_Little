@@ -27,7 +27,7 @@ export default function CreateOrganizationModal() {
           body: JSON.stringify({
             name: orgName,
             description: description,
-            owner: userId, //useAuth is returning undefined for userID
+            owner: userId, 
             // logo: "DEFAULT_LOGO_ID", 
           }),
         });
