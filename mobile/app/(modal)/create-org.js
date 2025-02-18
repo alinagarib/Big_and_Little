@@ -8,7 +8,7 @@ import useAuth from '@context/useAuth';
 
 export default function CreateOrganizationModal() {
   const router = useRouter();
-  const { userID } = useAuth();
+  const { userId } = useAuth();
   const [orgName, setOrgName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ export default function CreateOrganizationModal() {
           body: JSON.stringify({
             name: orgName,
             description: description,
-            owner: userID, //useAuth is returning undefined for userID
+            owner: userId, //useAuth is returning undefined for userID
             // logo: "DEFAULT_LOGO_ID", 
           }),
         });
