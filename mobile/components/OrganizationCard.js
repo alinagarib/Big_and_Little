@@ -1,22 +1,29 @@
-import { View, Image, Text, StyleSheet } from "react-native";
+import { View, Image, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { router } from "expo-router";
 
 /*
   Organization Card Component - Displays organization information for the Explore page
 */
 export default function OrganizationCard({ org }) {
+  const viewOrganization = () => {
+    router.push(`/organizations/${org.id}/matches`)
+  };
+
   return (
-    <View style={styles.container}>
-      <Image style={styles.logo} source={{ uri: org.logo }}/>
-      <View style={styles.textContainer}>
-        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-          {org.name}
-        </Text>
-        <Text style={styles.description} numberOfLines={4} ellipsizeMode="tail">
-          {org.description}
-        </Text>
+    <TouchableWithoutFeedback onPress={viewOrganization}>
+      <View style={styles.container}>
+        <Image style={styles.logo} source={{ uri: org.logo }} />
+        <View style={styles.textContainer}>
+          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+            {org.name}
+          </Text>
+          <Text style={styles.description} numberOfLines={4} ellipsizeMode="tail">
+            {org.description}
+          </Text>
+        </View>
+        <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
       </View>
-      <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
