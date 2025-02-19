@@ -138,7 +138,6 @@ const loginUser = async (req, res) => {
             process.env.JWT_SECRET_KEY,
             { expiresIn: '7d' }
         );
-
         return res.status(200).send(accessToken);
     } 
     catch (err) { // Server error (Probably a Mongoose connection issue)
