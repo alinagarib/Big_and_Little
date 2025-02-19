@@ -49,7 +49,6 @@ const profiles = [
 
 export default function SwipePage() {
   const { org } = useLocalSearchParams();
-  console.log(org);
 
   const [profileIndex, setProfileIndex] = useState(0); //Current profile index
   const swipeAnim = useRef(new Animated.Value(0)).current; // Animation of horizontal swipe

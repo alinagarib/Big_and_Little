@@ -57,11 +57,11 @@ const getImage = (req, res) => {
   if (id === MOCK_IMAGE_ID) {
     switch (bucket) {
       case "profile": {
-        image = "https://xsgames.co/randomusers/avatar.php?g=male";
+        image = `https://xsgames.co/randomusers/avatar.php?g=male?${new Date()}`;
         break;
       }
       case "organization": {
-        image = "https://picsum.photos/200";
+        image = `https://picsum.photos/200?${new Date()}`;
         break;
       }
       default: {

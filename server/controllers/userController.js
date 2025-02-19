@@ -124,6 +124,7 @@ const loginUser = async (req, res) => {
         const profiles = await Profile.find({ userId: user._id }).populate('organizationId').exec();
         const profilesArray = profiles.map(profile => ({
             id: profile._id,
+            organizationId: profile.organizationId._id,
             isOwner: profile.organizationId.owner.equals(user._id)
         }));
 
