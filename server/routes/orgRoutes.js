@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../middleware/authMiddleware');
 const orgController = require('../controllers/orgController');
 
 router.route('/organizations')
@@ -7,5 +8,13 @@ router.route('/organizations')
 
 router.route('/create-org')
     .post(orgController.createOrganization);
+
+// router.use('/organizations', verifyToken);
+
+router.route('/organizations/:orgId')
+    .get(orgController.getOrganizationById);
+
+router.route('/organizations/:orgId/members')
+    .get(orgController.getOrganizationMembers);
 
 module.exports = router;
