@@ -35,13 +35,16 @@ const createProfile = async (req, res) => {
 const getProfileByUserId = async (req, res) => {
   try {
     const { userId } = req.body;
+    console.log("Fetching profile for userId:", userId);
+    
 
     // Verify required data exists
     if (!userId) {
       return res.status(400).json({ message: 'userId field required.' });
     }
 
-    const profile = await Profile.findOne({ userId: req.userId });
+    const profile = await Profile.findOne({ userId: userId });
+    console.log("Fetched profile:", profile); // Debugging log
 
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });

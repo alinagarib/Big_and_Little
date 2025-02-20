@@ -3,7 +3,7 @@ import { router } from "expo-router";
 
 export default function Home() {
   const handleClick = () => {
-    router.push('/organizations/:id/matches');
+    router.push('/organizations/:100/matches');
   }
 
   return (

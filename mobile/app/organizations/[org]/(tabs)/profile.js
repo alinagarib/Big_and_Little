@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Pressable, Image, Text, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Alert, View, ScrollView, StyleSheet } from 'react-native';
 
 import { Link, router } from 'expo-router';
-import { useGlobalSearchParams } from 'expo-router/build/hooks';
+import { useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import Constants from "expo-constants";
 import * as ImagePicker from 'expo-image-picker';
 
@@ -25,9 +25,11 @@ export default function ViewProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [profileName, setProfileName] = useState('');
     const [images, setImages] = useState([]);
-    
+    const { userId, profiles } = useAuth();
     const params = useGlobalSearchParams();
-
+    const { org } = useLocalSearchParams();
+    
+    
     // State for scroll fix
     const scrollViewRef = useRef(null);
     const scrollFix = useRef(false);
@@ -35,6 +37,13 @@ export default function ViewProfile() {
     const toggleIsEditing = (edit) => {
         setIsEditing(edit);
     };
+    
+    useEffect(() => {
+      getProfile();
+      console.log('Printing userID:', userId);
+      
+
+    }, []);
 
     //image picker function 
     const pickImage = async (index) => {
@@ -65,16 +74,83 @@ export default function ViewProfile() {
       PUT profiles
     */
     const saveProfile = () => {
+      
+      console.log('Printing org:');
       toggleIsEditing(false);
+      //how do I get the orginizaiton ID?
+      const payload = {
+        orginizationId: params.organizationId,
+        bio: description,
+        images: images,
+        ProfilePicture: images[0],
+        role: 'member',
+        numberOfLittles: 0,
+        ranking: 0
+      }
+  
+      const URI = Constants.expoConfig.hostUri.split(':').shift();
+  
+      
+      fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+
+        },
+        body: JSON.stringify(payload)
+      }).then(res => {
+        if (!res.ok) { 
+          res.text().then(text => {
+            Alert.alert('', text, [{
+              text: 'OK',
+              style: 'cancel'
+            }]);
+            console.log('Login failed');            
+          });
+        } else {
+         
+          console.log('Profile created successfully');
+        }
+      }).catch(err => console.log(err));
     };
 
     /*
       TODO: get profile to display current information
       GET profiles
     */
-    const getProfile = async () => {
-      // await fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/${params.userId}`);
-    };
+      const getProfile = async () => {
+        try {
+          const URI = Constants.expoConfig.hostUri.split(':').shift();
+          const url = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${userId}`;
+          console.log("Fetching profile from:", url); 
+      
+          // is this where I do something with token?
+      
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json"
+            },
+          });
+      
+          if (!response.ok) {
+            throw new Error(`Failed to fetch profile data: ${response.status} ${response.statusText}`);
+          }
+      
+          const profileData = await response.json();
+          console.log("Profile data:", profileData);
+      
+          
+          setProfileName(profileData.name || '');
+          setMajor(profileData.major || '');
+          setDescription(profileData.bio || '');
+          setImages(profileData.images || []);
+          setInterests(profileData.interests || ['+']);
+        } catch (err) {
+          console.error("Error fetching profile:", err);
+          Alert.alert('Error', 'Failed to fetch profile data');
+        }
+      };
 
     const handlePressInterest = (index) => {
       if (!isEditing) return;
@@ -217,7 +293,7 @@ export default function ViewProfile() {
 
 
               <View style={styles.buttonContainer}>
-                <StyledButton text={isEditing ? "Save" : "Edit" } onClick={() => {isEditing ? toggleIsEditing(false) : toggleIsEditing(true) }} />
+                <StyledButton text={isEditing ? "Save" : "Edit" } onClick={() => {isEditing ? saveProfile() : toggleIsEditing(true) }} />
               </View>
 
                 {/* <StyledButton text="Save" onClick={saveProfile} /> */}
