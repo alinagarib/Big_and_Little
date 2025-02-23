@@ -6,6 +6,11 @@ import { View, Image, Text, StyleSheet } from "react-native";
 export default function OrganizationCard({ org }) {
   return (
     <View style={styles.container}>
+      {org.joined && (
+        <View style={styles.joinedMarker}>
+          <Text style={styles.joinedText}>✔</Text>
+        </View>
+      )}
       <Image style={styles.logo} source={{ uri: org.logo }}/>
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
@@ -46,5 +51,19 @@ const styles = StyleSheet.create({
     bottom: 5,
     right: 10,
     fontWeight: "bold"
-  }
+  },
+  joinedMarker: {
+    position: 'absolute',
+    top: 7,
+    right: 7,
+    backgroundColor: "green",
+    paddingVertical: 3,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+  },
+  joinedText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
 });
