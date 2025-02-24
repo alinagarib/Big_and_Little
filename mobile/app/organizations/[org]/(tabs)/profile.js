@@ -77,7 +77,10 @@ export default function ViewProfile() {
       //bio, images, profilePicture, numberOfLittles
       //NEED TO UPDATE ALL VALUES NOT JUST THESE 4
       const payload = {
+        interests: interests,
+        major: major,
         description: description,
+        profileName: profileName,
         images: images,
         profilePicture: images[0],
         numberOfLittles: 0
@@ -136,7 +139,7 @@ export default function ViewProfile() {
           const profileData = await response.json();
           
           
-          setProfileName(profileData.name || '');
+          setProfileName(profileData.profileName || '');
           setMajor(profileData.major || '');
           setDescription(profileData.description || '');
           setImages(profileData.images || []);

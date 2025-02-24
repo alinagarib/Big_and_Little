@@ -17,7 +17,20 @@ const profileSchema = new mongoose.Schema({
     maxLength: 500,
     default: ""
   },
+  major: { 
+    type: String,
+    maxLength: 50,
+    default: ""
+  },              //change change length of these fields if we need
+  profileName: { 
+    type: String,
+    maxLength: 50,
+    default: ""
+  },
   images: {
+    type: [String]
+  },
+  interests: {
     type: [String]
   },
   role: {

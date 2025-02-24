@@ -60,7 +60,7 @@ const updateProfile = async (req, res) => {
 
     const { userId } = req.params;
 
-    const { description, images, profilePicture, numberOfLittles } = req.body;
+    const { interests, major, description, profileName, images, profilePicture, numberOfLittles } = req.body;
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
@@ -79,6 +79,9 @@ const updateProfile = async (req, res) => {
 
     const profileObject = { };
 
+    if(interests) profileObject.interests = interests;
+    if (major) profileObject.major = major;
+    if (profileName) profileObject.profileName = profileName;
     if (description) profileObject.description = description; 
     if (images) profileObject.images = images; 
     if (profilePicture) profileObject.profilePicture = profilePicture;
