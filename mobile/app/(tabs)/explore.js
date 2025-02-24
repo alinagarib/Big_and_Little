@@ -54,7 +54,7 @@ export default function Explore() {
             <StyledButton
               text="Create New Organization" 
               onClick={() => { 
-                router.push("/create-org");           
+                router.push("/(modal)/create-org");           
               }} />
           </View>
         </View>
