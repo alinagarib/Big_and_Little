@@ -25,9 +25,9 @@ export default function ViewProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [profileName, setProfileName] = useState('');
     const [images, setImages] = useState([]);
-    const { userId, profiles } = useAuth();
+    const { userId, profiles, token } = useAuth();
     const params = useGlobalSearchParams();
-    const { org } = useLocalSearchParams();
+    const [orgID, setOrgID] = useState('');
     
     
     // State for scroll fix
@@ -40,9 +40,6 @@ export default function ViewProfile() {
     
     useEffect(() => {
       getProfile();
-      console.log('Printing userID:', userId);
-      
-
     }, []);
 
     //image picker function 
@@ -72,29 +69,29 @@ export default function ViewProfile() {
     /*
       TODO: add profile updating
       PUT profiles
+      
     */
     const saveProfile = () => {
       
-      console.log('Printing org:');
       toggleIsEditing(false);
-      //how do I get the orginizaiton ID?
+      //bio, images, profilePicture, numberOfLittles
+      //NEED TO UPDATE ALL VALUES NOT JUST THESE 4
       const payload = {
-        orginizationId: params.organizationId,
-        bio: description,
+        description: description,
         images: images,
-        ProfilePicture: images[0],
-        role: 'member',
-        numberOfLittles: 0,
-        ranking: 0
-      }
+        profilePicture: images[0],
+        numberOfLittles: 0
+      };
+      
   
       const URI = Constants.expoConfig.hostUri.split(':').shift();
-  
-      
-      fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles`, {
-        method: "POST",
+      const URL = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${userId}`;
+
+      fetch(URL, {
+        method: "PUT",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
 
         },
         body: JSON.stringify(payload)
@@ -109,9 +106,10 @@ export default function ViewProfile() {
           });
         } else {
          
-          console.log('Profile created successfully');
+          console.log('Profile updated');
+          
         }
-      }).catch(err => console.log(err));
+      }).catch(err => console.log("ERROR", err));
     };
 
     /*
@@ -122,14 +120,12 @@ export default function ViewProfile() {
         try {
           const URI = Constants.expoConfig.hostUri.split(':').shift();
           const url = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${userId}`;
-          console.log("Fetching profile from:", url); 
-      
-          // is this where I do something with token?
       
           const response = await fetch(url, {
             method: "GET",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
             },
           });
       
@@ -138,14 +134,15 @@ export default function ViewProfile() {
           }
       
           const profileData = await response.json();
-          console.log("Profile data:", profileData);
-      
+          
           
           setProfileName(profileData.name || '');
           setMajor(profileData.major || '');
-          setDescription(profileData.bio || '');
+          setDescription(profileData.description || '');
           setImages(profileData.images || []);
           setInterests(profileData.interests || ['+']);
+          setOrgID(profileData.organizationId || '');
+          
         } catch (err) {
           console.error("Error fetching profile:", err);
           Alert.alert('Error', 'Failed to fetch profile data');

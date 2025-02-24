@@ -12,7 +12,7 @@ const profileSchema = new mongoose.Schema({
     required: [true, "Profile must be linked to an organization!"],
     ref: 'Organization'
   },
-  description: { // Would this make more sense to be called bio?
+  description: { // Would this make more sense to be called bio? (if it gets changed, change it in controller and profile.js)
     type: String,
     maxLength: 500,
     default: ""
