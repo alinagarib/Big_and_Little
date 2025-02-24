@@ -1,12 +1,24 @@
 import { View, Image, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
+import useAuth from "@context/useAuth";
 
 /*
   Organization Card Component - Displays organization information for the Explore page
 */
 export default function OrganizationCard({ org }) {
+  const {profiles} = useAuth();
   const viewOrganization = () => {
-    router.push(`/organizations/${org.id}/matches`)
+    const isInOrg = profiles.some(profile => profile.organizationId === org.id);
+
+    if (isInOrg){
+      router.push(`/organizations/${org.id}/matches`);
+    } 
+    else{
+      router.push({
+        pathname: "/(modal)/join-org",
+        params: { org: org.id }
+      });
+    }
   };
 
   return (
