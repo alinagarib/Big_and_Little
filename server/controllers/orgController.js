@@ -52,7 +52,13 @@ const getOrganizationById = async (req, res) => {
         const org = await Organization.findOne({ _id: orgId }).exec();
         console.log(org);
         if (org) {
-            return res.json(org);
+            return res.json({
+                id: org.id,
+                name: org.name,
+                description: org.description,
+                logo: org.logo,
+                size: org.members.length
+            });
         }
 
         return res.status(404).send();
