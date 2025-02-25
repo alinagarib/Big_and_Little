@@ -1,6 +1,7 @@
 import Constants from "expo-constants";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
+import { fetchImage } from "@middleware/fetchImage";
 
 import Loading from "@components/Loading";
 import OrganizationCard from "@components/OrganizationCard";
@@ -19,16 +20,12 @@ export default function Explore() {
       const URI = Constants.expoConfig.hostUri.split(':').shift();
       fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/organizations`)
         .then(res => res.json())
-        .then(async (json) => {
+        .then(async json => {
           const updatedOrganizations = await Promise.all(
-            json.map(async (org) => {
-              // Currently, use MOCK_IMAGE_ID instead of ID found in org.logo
-              const logoRes = await fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/image/organization/MOCK_IMAGE_ID`);
-              const logoUrl = await logoRes.text();
-
+            json.map(async org => {
               return {
                 ...org,
-                logo: logoUrl
+                logo: await fetchImage('organization', org.logo)
               };
             })
           );
