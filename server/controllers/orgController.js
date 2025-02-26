@@ -1,6 +1,7 @@
 const Organization = require('../models/Organization');
 const { Error } = require('mongoose');
 const crypto = require('crypto');
+const Profile = require('../models/Profile');
 
 // Function to generate a unique joinCode
 const generateUniqueJoinCode = async () => {
@@ -25,6 +26,7 @@ const getOrganizations = async (req, res) => {
     try {
         const orgs = await Organization.find({ isPublic: true, isMatching: false }).exec();
         const orgsArray = orgs.map(org => ({
+            id: org.id,
             name: org.name,
             description: org.description,
             logo: org.logo,
@@ -36,29 +38,6 @@ const getOrganizations = async (req, res) => {
         return res.status(500).send();
     }
 }
-
-
-// @desc Get if user has joined org, uses userID
-// @route GET /is-joined
-const isJoined = async (req, res) => {
-    const { userId, orgId } = req.body;
-
-    if (!userId || !orgId) {
-        return res.status(400).json({ message: "Missing userId or orgId" });
-    }
-
-    try {
-        const org = await Organization.findById(orgId);
-        if (!org) {
-            return res.status(404).json({ message: "Organization not found" });
-        }
-
-        const joined = org.members.includes(userId);
-        return res.status(200).json({ joined });
-    } catch (err) {
-        return res.status(500).json({ message: "Server error", error: err.message });
-    }
-};
 
 // @desc Create a new organization
 // @route POST /create-org
@@ -93,4 +72,88 @@ const createOrganization = async (req, res) => {
     }
 };
 
-module.exports = { getOrganizations, createOrganization, isJoined };
+
+// @desc Get a specific organization
+// @route GET /organizations/:orgId
+// @access Private
+const getOrganizationById = async (req, res) => {
+    try {
+        const { orgId } = req.params;
+        console.log(orgId);
+        if (!orgId) {
+            return res.status(400).json({ message: 'id field required.' });
+        }
+
+        const org = await Organization.findOne({ _id: orgId }).exec();
+        console.log(org);
+        if (org) {
+            return res.json({
+                id: org.id,
+                name: org.name,
+                description: org.description,
+                logo: org.logo,
+                size: org.members.length
+            });
+        }
+
+        return res.status(404).send();
+    }
+    catch (err) {
+        return res.status(500).send();
+    }
+};
+
+// @desc Get a specific organizations members
+// @route GET /organizations/:orgId/members
+// @access Private
+const getOrganizationMembers = async (req, res) => {
+    try {
+        const { orgId } = req.params;
+        if (!orgId) {
+            return res.status(400).json({ message: 'id field required.' });
+        }
+
+        const org = await Organization.findOne({ _id: orgId }).exec();
+        if (!org) {
+            return res.status(404).send();
+        }
+
+        const profiles = await Profile.find({ _id: { $in: org?.members } }).exec();
+
+        if (!profiles) {
+            return res.status(404).send();
+        }
+
+        return res.json(profiles);
+    }
+    catch (err) {
+        return res.status(500).send();
+    }
+};
+
+
+
+// @desc Get if user has joined org, uses userID
+// @route GET /is-joined
+const isJoined = async (req, res) => {
+    const { userId, orgId } = req.body;
+
+    if (!userId || !orgId) {
+        return res.status(400).json({ message: "Missing userId or orgId" });
+    }
+
+    try {
+        const org = await Organization.findById(orgId);
+        if (!org) {
+            return res.status(404).json({ message: "Organization not found" });
+        }
+
+        const joined = org.members.includes(userId);
+        return res.status(200).json({ joined });
+    } catch (err) {
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+
+module.exports = { getOrganizations, getOrganizationById, getOrganizationMembers, createOrganization, isJoined };

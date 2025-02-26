@@ -36,9 +36,6 @@ export default function Login() {
         text: 'OK',
         style: 'cancel'
       }]);
-      // Clear text inputs
-      setUserID('');
-      setPassword('');
     } else {
       router.navigate('/home');
     }
