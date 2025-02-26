@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-// import { fetchImage } from "@middleware/fetchImage";
+import { fetchImage } from "@middleware/fetchImage";
 import useAuth from "@context/useAuth";
 
 import Loading from "@components/Loading";
