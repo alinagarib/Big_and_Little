@@ -13,6 +13,7 @@ import StyledButton from '@components/StyledButton';
 import StyledPictureInput from '@components/StyledPictureInput';
 import ProfilePicture from '@components/ProfilePicture';
 import useAuth from '@context/useAuth';
+import { useSession } from '@context/ctx';
 
 /*
     route: /view-profile
@@ -25,9 +26,11 @@ export default function ViewProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [profileName, setProfileName] = useState('');
     const [images, setImages] = useState([]);
-    const { userId, profiles, token } = useAuth();
+    const { userId, profiles } = useAuth();
     const params = useGlobalSearchParams();
     const [orgID, setOrgID] = useState('');
+
+    const { session } = useSession();
     
     
     // State for scroll fix
@@ -94,7 +97,7 @@ export default function ViewProfile() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${session}`
 
         },
         body: JSON.stringify(payload)
@@ -128,7 +131,7 @@ export default function ViewProfile() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
+              "Authorization": `Bearer ${session}`
             },
           });
       
@@ -139,11 +142,17 @@ export default function ViewProfile() {
           const profileData = await response.json();
           
           
-          setProfileName(profileData.profileName || '');
-          setMajor(profileData.major || '');
-          setDescription(profileData.description || '');
-          setImages(profileData.images || []);
-          setInterests(profileData.interests || ['+']);
+          setProfileName(profileData.profileName);
+          setMajor(profileData.major);
+          setDescription(profileData.description);
+          setImages(profileData.images);
+          if(profileData.interests != "") {
+            setInterests(profileData.interests);
+          }
+          else{
+            setInterests(['+']);
+          }
+          
           setOrgID(profileData.organizationId || '');
           
         } catch (err) {

@@ -82,9 +82,9 @@ const updateProfile = async (req, res) => {
     if(interests) profileObject.interests = interests;
     if (major) profileObject.major = major;
     if (profileName) profileObject.profileName = profileName;
-    if (description) profileObject.description = description; 
+    if (description != undefined) profileObject.description = description; 
     if (images) profileObject.images = images; 
-    if (profilePicture) profileObject.profilePicture = profilePicture;
+    if (profilePicture != undefined) profileObject.profilePicture = profilePicture;
     if (numberOfLittles != undefined) profileObject.numberOfLittles = numberOfLittles; //changed this so it will work if numberOfLittles is 0
 
     const updatedProfile = await Profile.findOneAndUpdate(

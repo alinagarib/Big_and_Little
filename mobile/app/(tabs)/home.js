@@ -14,7 +14,6 @@ export default function Home() {
     console.log("Fetching profile for userId:", userId);
     console.log("Fetching profile for orgID:", orgID);
     console.log("Fetching profile for profiles:", profiles);
-    
     router.push(`/organizations/${orgID}/matches`)
   }
 

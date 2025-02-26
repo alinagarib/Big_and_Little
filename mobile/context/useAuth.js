@@ -9,13 +9,13 @@ const useAuth = () => {
         const decoded = jwtDecode(session);
         const { userId, profiles } = decoded.UserInfo;
 
-        return { userId, profiles, token:session };
+        return { userId, profiles };
         } catch (error) {
             console.error("JWT Decode Error:", error);
         }
     }
 
-    return { userId: '', profiles: [], token: null };
+    return { userId: '', profiles: [] };
 };
 
 export default useAuth;
