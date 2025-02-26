@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { fetchImage } from "@middleware/fetchImage";
+// import { fetchImage } from "@middleware/fetchImage";
 
 import Loading from "@components/Loading";
 import OrganizationCard from "@components/OrganizationCard";
@@ -26,11 +26,18 @@ export default function Explore() {
         .then(res => res.json())
         .then(async json => {
           const updatedOrganizations = await Promise.all(
-            json.map(async org => {
-              return {
-                ...org,
-                logo: await fetchImage('organization', org.logo)
-              };
+            json.map(async (org) => {
+              // Currently, use MOCK_IMAGE_ID instead of ID found in org.logo
+              const logoRes = await fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/image/organization/MOCK_IMAGE_ID`);
+              const logoUrl = await logoRes.text();
+
+              const joinedRes = await fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/is-joined`, {
+                method: "POST", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, orgId: org.id }) // Send userId and orgId
+              });
+              const { joined } = await joinedRes.json();
+              return isMounted ? { ...org, logo: logoUrl, joined } : null;
             })
           );
 
