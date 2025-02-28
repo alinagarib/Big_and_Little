@@ -32,6 +32,10 @@ export default function Register() {
   // State for clearing text inputs
   const [reset, setReset] = useState(false);
 
+  //State for Logo size
+  const [logoSize, setLogoSize] = useState(150);
+  const scrollThrottle = useRef(false);
+
   // Method to POST inputted data to /register server route
   const createUser = () => {
     const payload = {
@@ -87,20 +91,41 @@ export default function Register() {
       });
     }
   }
-
+  // Logo resizing 
+  const handleScrollResize = (event) => {
+    if (scrollThrottle.current) return;
+    event.persist();
+    scrollThrottle.current = true;
+    const scrollY = event.nativeEvent.contentOffset.y;
+    
+    if (scrollY < 0) {
+      setLogoSize(150); 
+    } else if (scrollY < 80) {
+      setLogoSize(Math.max(70, 150 - scrollY)); 
+    } else {
+      setLogoSize(70); 
+    }
+  
+    setTimeout(() => {
+      scrollThrottle.current = false;
+    }, 100);
+  };
+  const titleSectionHeight = logoSize + 20;
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-        <View style={styles.titleSection}>
-          <Title />
+        <View style={[styles.titleSection, {height: titleSectionHeight}]}>
+        <Image style={[styles.logo, {height: logoSize, width: logoSize}]} source={require('@assets/BLLogo.png')}></Image>
         </View>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
           <ScrollView
             style={styles.scrollContainer}
             ref={scrollViewRef}
-            onMomentumScrollEnd={handleScroll}>
+            onMomentumScrollEnd={handleScroll}
+            onScroll={handleScrollResize}
+            scrollEventThrottle={16}>
             <View onStartShouldSetResponder={() => true} style={styles.form}>
-
+          
               <StyledTextInput
                 field="Name"
                 value={name}
@@ -151,9 +176,12 @@ export default function Register() {
                 validate={validatePassword}
                 secureTextEntry={true}
                 reset={reset} />
-              <StyledButton text="Create Account" onClick={createUser} />
             </View>
+            <View style={styles.buttonContainer}>
+              <StyledButton text="Create Account" onClick={createUser} />
+          </View>
           </ScrollView>
+          
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
@@ -167,9 +195,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter'
   },
   titleSection: {
-    height: '40%',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  logo: {
+    resizeMode: 'contain'
   },
   scrollContainer: {
     height: '60%',
@@ -184,5 +215,10 @@ const styles = StyleSheet.create({
   },
   picker: {
     marginVertical: -15
+  },
+  buttonContainer: {
+    marginTop: 45,  
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
