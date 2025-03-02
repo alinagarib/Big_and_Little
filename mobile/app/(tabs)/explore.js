@@ -1,4 +1,4 @@
-import Constants from "expo-constants";
+import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { fetchImage } from "@middleware/fetchImage";
@@ -15,19 +15,18 @@ export default function Explore() {
   const [orgs, setOrgs] = useState([]);
   const { userId } = useAuth();
 
-
   useFocusEffect(
     useCallback(() => {
-      let isMounted = true; // keeps track so that state only updates when elements are present 
+      let isMounted = true;
       setLoading(true);
-      // Get IP that Expo server is using to host app, allows to connect with the backend
+
       const URI = Constants.expoConfig.hostUri.split(':').shift();
+      
       fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/organizations`)
         .then(res => res.json())
         .then(async json => {
           const updatedOrganizations = await Promise.all(
             json.map(async (org) => {
-              // Currently, use MOCK_IMAGE_ID instead of ID found in org.logo
               const logoURL = await fetchImage('organization', org.logo);
 
               const joinedRes = await fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/is-joined`, {
@@ -35,9 +34,9 @@ export default function Explore() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId, orgId: org.id }) // Send userId and orgId
               });
+
               const { joined } = await joinedRes.json();
-              
-              return isMounted ? { ...org, logo: logoUrl, joined } : null;
+              return isMounted ? { ...org, logo: logoURL, joined } : null;
             })
           );
 
@@ -45,11 +44,14 @@ export default function Explore() {
             setOrgs(updatedOrganizations);
             setLoading(false);
           }
+        })
+        .catch(err => {
+          setLoading(false);
         });
-        return () => { isMounted = false; }; 
-      }, [userId]) // dependency array, if the userId changes, the function will rerun 
-  );
 
+      return () => { isMounted = false; }; 
+      }, [userId])
+  );
 
   return (
     <View style={styles.container}>
@@ -60,14 +62,15 @@ export default function Explore() {
             style={styles.orgContainer}
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
-            renderItem={({ item }) => <OrganizationCard org={item} 
-            keyExtractor={(item) => item.id}/>}
-          />
+            renderItem={({ item }) => {
+              return <OrganizationCard org={item} />
+            }}
+            keyExtractor={(item) => item.id.toString()} />
           <View style={styles.button}>
             <StyledButton
               text="Create New Organization" 
               onClick={() => { 
-                router.push("/(modal)/create-org");           
+                router.push("/create-org");           
               }} />
           </View>
         </View>
