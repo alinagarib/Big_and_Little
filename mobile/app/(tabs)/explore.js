@@ -61,7 +61,7 @@ export default function Explore() {
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
             renderItem={({ item }) => <OrganizationCard org={item} 
-            keyExtractor={(item) => item._id}/>}
+            keyExtractor={(item) => item.id}/>}
           />
           <View style={styles.button}>
             <StyledButton
