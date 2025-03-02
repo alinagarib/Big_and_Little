@@ -10,20 +10,23 @@ export default function OrganizationCard({ org }) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={viewOrganization}>
-      <View style={styles.container}>
-        <Image style={styles.logo} source={{ uri: org.logo }} />
-        <View style={styles.textContainer}>
-          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-            {org.name}
-          </Text>
-          <Text style={styles.description} numberOfLines={4} ellipsizeMode="tail">
-            {org.description}
-          </Text>
+    <View style={styles.container}>
+      {org.joined && (
+        <View style={styles.joinedMarker}>
+          <Text style={styles.joinedText}>✔</Text>
         </View>
-        <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
+      )}
+      <Image style={styles.logo} source={{ uri: org.logo }}/>
+      <View style={styles.textContainer}>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {org.name}
+        </Text>
+        <Text style={styles.description} numberOfLines={4} ellipsizeMode="tail">
+          {org.description}
+        </Text>
       </View>
-    </TouchableWithoutFeedback>
+      <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
+    </View>
   );
 };
 
@@ -53,5 +56,19 @@ const styles = StyleSheet.create({
     bottom: 5,
     right: 10,
     fontWeight: "bold"
-  }
+  },
+  joinedMarker: {
+    position: 'absolute',
+    top: 7,
+    right: 7,
+    backgroundColor: "green",
+    paddingVertical: 3,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+  },
+  joinedText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
 });

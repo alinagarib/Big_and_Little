@@ -9,6 +9,8 @@ router.route('/organizations')
 router.route('/create-org')
     .post(orgController.createOrganization);
 
+router.route('/is-joined')
+    .post(orgController.isJoined);
 // router.use('/organizations', verifyToken);
 
 router.route('/organizations/:orgId')
