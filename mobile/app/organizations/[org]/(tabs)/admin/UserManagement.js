@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import Constants from "expo-constants";
+import Loading from "@components/Loading";
+import { useGlobalSearchParams, useFocusEffect, useRouter } from 'expo-router';
 
 const MOCK_USERS = [
   { id: '1', name: 'John Doe', email: 'john.doe@example.com', role: 'Admin' },
@@ -15,7 +18,28 @@ const MOCK_USERS = [
 ];
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { org } = useGlobalSearchParams();
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      // Get IP that Expo server is using to host app, allows to connect with the backend
+      const URI = Constants.expoConfig.hostUri.split(':').shift();
+      fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/organizations/${org}/members`)
+        .then(res => res.json())
+        .then(async (members) => {
+          const updatedMembers = [];
+          for (let i = 0; i < members.length; i++) {
+            updatedMembers.push({ id: members[i]._id, name: members[i]._id, email: 'test-email', role: 'Member' });
+          }
+          
+          setUsers(updatedMembers);
+          setLoading(false);
+        });
+    }, [])
+  );
 
   const handleAction = (userId, action) => {
     const updatedUsers = users.map((user) => {
@@ -55,40 +79,43 @@ const UserManagement = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>List of Users</Text>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.userCard}>
-            <Text style={styles.userName}>{item.name}</Text>
-            <Text style={styles.userEmail}>{item.email}</Text>
-            <Text style={styles.userRole}>{item.role}</Text>
-            <View style={styles.actionButtons}>
-              {item.role === 'Member' ? (
+      {loading ?
+        <Loading /> :
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.userCard}>
+              <Text style={styles.userName}>{item.name}</Text>
+              <Text style={styles.userEmail}>{item.email}</Text>
+              <Text style={styles.userRole}>{item.role}</Text>
+              <View style={styles.actionButtons}>
+                {item.role === 'Member' ? (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => handleAction(item.id, 'assign')}
+                  >
+                    <Text style={styles.buttonText}>Assign Admin</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.button, styles.revokeButton]}
+                    onPress={() => handleAction(item.id, 'revoke')}
+                  >
+                    <Text style={styles.buttonText}>Revoke Admin</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => handleAction(item.id, 'assign')}
+                  style={[styles.button, styles.deleteButton]}
+                  onPress={() => handleAction(item.id, 'delete')}
                 >
-                  <Text style={styles.buttonText}>Assign Admin</Text>
+                  <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={[styles.button, styles.revokeButton]}
-                  onPress={() => handleAction(item.id, 'revoke')}
-                >
-                  <Text style={styles.buttonText}>Revoke Admin</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={[styles.button, styles.deleteButton]}
-                onPress={() => handleAction(item.id, 'delete')}
-              >
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      }
     </View>
   );
 };

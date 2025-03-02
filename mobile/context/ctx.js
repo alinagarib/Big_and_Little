@@ -1,7 +1,8 @@
 // See https://docs.expo.dev/router/reference/authentication/
 
-import { useContext, createContext } from 'react';
+import { useEffect, useContext, createContext } from 'react';
 import { useStorageState } from './useStorageState';
+import { jwtDecode, InvalidTokenError } from 'jwt-decode';
 
 import Constants from "expo-constants";
 
@@ -26,6 +27,25 @@ export function useSession() {
 
 export function SessionProvider({ children }) {
   const [[isLoading, session], setSession] = useStorageState('session');
+  
+  useEffect(() => {
+    if (session !== null) {
+      try {
+        // Check if JWT is expired
+        const decoded = jwtDecode(session);
+        if (Date.now() >= decoded.exp * 1000) {
+          setSession(null);
+        }
+      } catch (e) {
+        // JWT is in invalid format
+        if (e instanceof InvalidTokenError) {
+          setSession(null);
+        } else {
+          throw e;
+        }
+      }
+    }
+  }, [session]);
 
   return (
     <AuthContext.Provider

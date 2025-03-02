@@ -22,28 +22,24 @@ export default function Login() {
   const [password, setPassword] = useState('');
 
   const { signIn } = useSession();
-
   // Method to POST inputted data to /login server route
   const loginUser = async () => {
     const payload = {
       userID: userID,
       password: password
     };
-   
+    
     const result = await signIn(payload);
     if (!result.success) {
       Alert.alert('', result.message, [{
         text: 'OK',
         style: 'cancel'
       }]);
-      // Clear text inputs
-      setUserID('');
-      setPassword('');
     } else {
       router.navigate('/home');
     }
   };
-
+  
   // TODO: Need to implement forgot password
   const forgotPassword = () => {
 
