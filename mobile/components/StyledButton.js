@@ -18,7 +18,9 @@ export default function StyledButton(props) {
       style={[styles.button, { backgroundColor: pressed ? 'grey' : 'black' }]}
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
-      onPress={props.onClick}
+      onPress={() => {
+        props.onClick();
+      }}
       disabled={props.disabled}>
       <Text style={styles.text}>{props.text}</Text>
     </Pressable>
