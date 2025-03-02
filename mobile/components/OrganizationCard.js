@@ -9,7 +9,7 @@ export default function OrganizationCard({ org }) {
   const {profiles} = useAuth();
   const viewOrganization = () => {
     const isInOrg = profiles.some(profile => profile.organizationId === org.id);
-
+    console.log(isInOrg);
     if (isInOrg){
       router.push(`/organizations/${org.id}/matches`);
     } 

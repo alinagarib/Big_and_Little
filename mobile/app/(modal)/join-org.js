@@ -16,6 +16,7 @@ export default function JoinOrg() {
   const { session } = useSession();
   const { org } = useLocalSearchParams();
   const router = useRouter();
+  const {signIn} = useSession();
 
   const handleCreateProfile = async (profileData) => {
     if (!selectedRole) {
@@ -54,7 +55,9 @@ export default function JoinOrg() {
       }
 
       const result = await response.json();
-      console.log('Profile created:', result);
+      
+      // update the session with new token
+      await signIn({ newToken: result.accessToken });
 
       Alert.alert(
         'Success', 

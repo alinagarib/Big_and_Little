@@ -86,7 +86,7 @@ export default function ProfileForm({ initialData = {}, onSubmit, role }) {
     const profileData = {
       interests,
       major,
-      bio,
+      description,
       profileName,
       images,
       profilePicture: images[0],

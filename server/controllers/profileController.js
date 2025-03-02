@@ -71,10 +71,32 @@ const createProfile = async (req, res) => {
           { $addToSet: { members: userId } }, // $addToSet prevents duplicate entries
           { session }
         );
-      });
 
-      await session.endSession();
-      res.status(201).json(profile);
+        // get all user's profiles for token update
+        const allProfiles = await Profile.find({ userId })
+          .populate('organizationId')
+          .exec();
+
+        const profilesArray = allProfiles.map(p => ({
+          id: p._id,
+          organizationId: p.organizationId._id,
+          isOwner: p.organizationId.owner.equals(userId)
+        }));
+
+        // Create new JWT
+        const accessToken = jwt.sign(
+          {
+            'UserInfo': {
+              'userId': userId,
+              'profiles': profilesArray
+            }
+          },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: '7d' }
+        );
+        await session.endSession();
+        res.status(201).json(profile, accessToken);
+      });
     } catch (error) {
       await session.endSession();
       throw error;
