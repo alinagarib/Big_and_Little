@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
 
 import Loading from '@components/Loading';
 import ProfileForm from '@components/ProfileForm';
@@ -14,7 +14,7 @@ export default function JoinOrg() {
   const [selectedRole, setSelectedRole] = useState(null);
   const { userId } = useAuth();
   const { session } = useSession();
-  const { orgId } = useLocalSearchParams();
+  const { org } = useLocalSearchParams();
   const router = useRouter();
 
   const handleCreateProfile = async (profileData) => {
@@ -29,11 +29,15 @@ export default function JoinOrg() {
       
       const fullProfileData = {
         ...profileData,
-        organizationId: orgId,
+        userId: userId,
+        organizationId: org,
+        role: selectedRole
       };
 
+      console.log('Sending profile data:', fullProfileData);
+
       const response = await fetch(
-        `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${userId}`,
+        `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles`,
         {
           method: 'POST',
           headers: {
@@ -45,8 +49,12 @@ export default function JoinOrg() {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to create profile; response not ok');
+        const errorData = await response.text();
+        throw new Error(errorData || 'Failed to create profile');
       }
+
+      const result = await response.json();
+      console.log('Profile created:', result);
 
       Alert.alert(
         'Success', 
@@ -54,13 +62,13 @@ export default function JoinOrg() {
         [
           {
             text: 'OK',
-            onPress: () => router.navigate(`/[org]/${orgId}/matches`)
+            onPress: () => router.navigate(`/organizations/${org}/matches`)
           }
         ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to create profile');
-      console.error(error);
+      console.error('Profile creation error:', error);
+      Alert.alert('Error', error.message || 'Failed to create profile');
     } finally {
       setLoading(false);
     }

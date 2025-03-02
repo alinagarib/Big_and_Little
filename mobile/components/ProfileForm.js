@@ -7,7 +7,7 @@ import {
     TouchableWithoutFeedback, 
     Keyboard, 
     KeyboardAvoidingView,
-    Platform, // Add this import
+    Platform,
     Text,
     Pressable,
     Image

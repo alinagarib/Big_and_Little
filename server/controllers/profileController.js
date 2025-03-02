@@ -1,33 +1,90 @@
 const Profile = require('../models/Profile');
+const Organization = require('../models/Organization');
 
-// Creates a new profile
 const createProfile = async (req, res) => {
   try {
-    const { organizationId, bio, images, profilePicture, role, numberOfLittles, ranking } = req.body;
+    const { 
+      userId,
+      organizationId, 
+      interests,
+      major,
+      description,
+      profileName,
+      images,
+      profilePicture,
+      role,
+      numberOfLittles 
+    } = req.body;
 
     // Verify required data exists
-    if (!req.userId || !organizationId || !role) {
-      return res.status(400).json({ message: 'userId, organizationId, and role fields required.' });
+    if (!userId || !organizationId || !role) {
+      return res.status(400).json({ 
+        message: 'userId, organizationId, and role fields required.' 
+      });
+    }
+
+    // Check if profile already exists for this user in this organization
+    const existingProfile = await Profile.findOne({ 
+      userId, 
+      organizationId 
+    });
+
+    if (existingProfile) {
+      return res.status(400).json({ 
+        message: 'Profile already exists for this user in this organization' 
+      });
     }
 
     // Check if uploadPictures length exceeds max limit of 3
     if (images && images.length > 3) {
-      return res.status(400).json({ message: 'Maximum of 3 pictures allowed' });
+      return res.status(400).json({ 
+        message: 'Maximum of 3 pictures allowed' 
+      });
     }
 
-    const profileObject = { userId, organizationId, bio, images, profilePicture, role, numberOfLittles, ranking };
+    const profileObject = {
+      userId,
+      organizationId,
+      role,
+      interests: interests || [],
+      major: major || '',
+      description: description || '',
+      profileName: profileName || '',
+      images: images || [],
+      profilePicture: profilePicture || '',
+      numberOfLittles: role === 'Big' ? (numberOfLittles || 0) : undefined
+    };
 
-    const profile = await Profile.create(profileObject);
+    //use session to make sure creation of profile and add to org; atomic
+    const session = await Profile.startSession();
+    let profile;
 
-    if (profile) {
-      res.status(201).json({ message: `New profile created.` });
-    }
-    else {
-      return res.status(400).json({ message: 'Invalid profile data received.' });
+    try {
+      await session.withTransaction(async () => {
+        // create the profile
+        profile = await Profile.create([profileObject], { session });
+        profile = profile[0]; // create returns an array when used with session
+
+        // Add user to organization's members
+        await Organization.findByIdAndUpdate(
+          organizationId,
+          { $addToSet: { members: userId } }, // $addToSet prevents duplicate entries
+          { session }
+        );
+      });
+
+      await session.endSession();
+      res.status(201).json(profile);
+    } catch (error) {
+      await session.endSession();
+      throw error;
     }
   }
   catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Profile creation error:', err);
+    res.status(400).json({ 
+      message: err.message 
+    });
   }
 };
 
