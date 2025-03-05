@@ -36,7 +36,7 @@ export default function Login() {
         style: 'cancel'
       }]);
     } else {
-      router.navigate('/home');
+      router.push('/home');
     }
   };
   
