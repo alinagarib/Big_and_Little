@@ -70,7 +70,7 @@ export default function JoinOrg() {
         [
           {
             text: 'OK',
-            onPress: () => router.replace(`/organizations/${org}/matches`)
+            onPress: () => router.replace(`/organizations/${org}`)
           }
         ]
       );

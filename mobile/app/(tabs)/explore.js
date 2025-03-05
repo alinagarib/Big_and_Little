@@ -15,6 +15,7 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [orgs, setOrgs] = useState([]);
   const { userId, profiles } = useAuth();
+  const { session } = useSession();
 
 
   useFocusEffect(
@@ -50,6 +51,20 @@ export default function Explore() {
       }, [userId, session])
   );
 
+  const handlePress = (orgId) => {
+    const isInOrg = profiles.some(profile => profile.organizationId === orgId);
+    console.log(isInOrg);
+    if (isInOrg){
+      router.push(`/organizations/${orgId}`);
+    } 
+    else{
+      router.push({
+        pathname: "/join-org",
+        params: { org: orgId }
+      });
+    }
+  }
+
   return (
     <View style={styles.container}>
       {loading ?
@@ -59,7 +74,12 @@ export default function Explore() {
             style={styles.orgContainer}
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
-            renderItem={({ item }) => <OrganizationCard org={item} />}
+            renderItem={({ item }) => 
+              <OrganizationCard
+                org={item}
+                onPress={() => handlePress(item.id)}
+              />
+            }
             keyExtractor={item => item.id}
           />
           <View style={styles.button}>
