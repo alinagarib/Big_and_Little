@@ -8,12 +8,14 @@ import OrganizationCard from "@components/OrganizationCard";
 import StyledButton from "@components/StyledButton";
 import { View, StyleSheet, FlatList } from "react-native";
 import useAuth from '@context/useAuth';
+import { useSession } from '@context/ctx'; 
 
 export default function Explore() {
   const router = useRouter();   
   const [loading, setLoading] = useState(true);
   const [orgs, setOrgs] = useState([]);
   const { userId } = useAuth();
+  const { session } = useSession();
 
   useFocusEffect(
     useCallback(() => {
@@ -50,7 +52,7 @@ export default function Explore() {
         });
 
       return () => { isMounted = false; }; 
-      }, [userId])
+      }, [userId, session])
   );
 
   return (

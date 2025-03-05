@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const Profile = require('../models/Profile');
 const Organization = require('../models/Organization');
 
@@ -68,13 +70,14 @@ const createProfile = async (req, res) => {
         // Add user to organization's members
         await Organization.findByIdAndUpdate(
           organizationId,
-          { $addToSet: { members: userId } }, // $addToSet prevents duplicate entries
+          { $addToSet: { members: profile._id } }, // $addToSet prevents duplicate entries
           { session }
         );
 
         // get all user's profiles for token update
         const allProfiles = await Profile.find({ userId })
           .populate('organizationId')
+          .session(session)  // same session
           .exec();
 
         const profilesArray = allProfiles.map(p => ({
@@ -94,12 +97,13 @@ const createProfile = async (req, res) => {
           process.env.JWT_SECRET_KEY,
           { expiresIn: '7d' }
         );
-        await session.endSession();
-        res.status(201).json(profile, accessToken);
+        res.status(201).json({profile, accessToken});
       });
     } catch (error) {
-      await session.endSession();
       throw error;
+    }
+    finally {
+      await session.endSession();
     }
   }
   catch (err) {
@@ -183,22 +187,47 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// Deletes profile
 const deleteProfile = async (req, res) => {
   try {
-    const { userId } = req.body;
+      const { userId, organizationId } = req.body;  // Add organizationId to request body
 
-    if (userId != req.userId) {
-      return res.status(401).json({ message: "Cannot delete another User's profile" })
-    }
+      if (userId != req.userId) {
+          return res.status(401).json({ message: "Cannot delete another User's profile" })
+      }
 
-    const profile = await Profile.findOneAndDelete({ userId: req.userId });
-    if (!profile) {
-      return res.status(404).json({ message: 'Profile not found' });
-    }
-    res.json({ message: 'Profile deleted successfully' });
+      const profile = await Profile.findOne({ 
+          userId: req.userId,
+          organizationId: organizationId  // Add this condition
+      });
+      
+      if (!profile) {
+          return res.status(404).json({ message: 'Profile not found' });
+      }
+
+      const session = await Profile.startSession();
+      try {
+          await session.withTransaction(async () => {
+              // Remove user from organization's members using profile ID
+              await Organization.findByIdAndUpdate(
+                  organizationId,
+                  { $pull: { members: profile._id } },
+                  { session }
+              );
+
+              // Remove the specific profile
+              await Profile.findOneAndDelete({ 
+                  userId: req.userId,
+                  organizationId: organizationId  // Add this condition
+              }, { session });
+          });
+          await session.endSession();
+          res.json({ message: 'Profile deleted successfully' });
+      } catch (error) {
+          await session.endSession();
+          throw error;
+      }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
   }
 };
 

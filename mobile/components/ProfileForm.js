@@ -22,7 +22,7 @@ export default function ProfileForm({ initialData = {}, onSubmit, role }) {
   // States for form data
   const [interests, setInterests] = useState(initialData.interests || ['+']);
   const [major, setMajor] = useState(initialData.major || '');
-  const [bio, setBio] = useState(initialData.bio || '');
+  const [description, setDescription] = useState(initialData.description || '');
   const [profileName, setProfileName] = useState(initialData.profileName || '');
   const [images, setImages] = useState(initialData.images || []);
 
@@ -171,8 +171,8 @@ export default function ProfileForm({ initialData = {}, onSubmit, role }) {
 
             <StyledTextInput
               field="Bio"
-              value={bio}
-              setText={setBio}
+              value={description}
+              setText={setDescription}
               placeholder="Tell us about yourself"
               multiline
               numberOfLines={4}

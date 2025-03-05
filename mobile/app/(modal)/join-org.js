@@ -9,6 +9,7 @@ import StyledButton from '@components/StyledButton';
 import useAuth from '@context/useAuth';
 import { useSession } from '@context/ctx';
 
+
 export default function JoinOrg() {
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
@@ -54,10 +55,18 @@ export default function JoinOrg() {
         throw new Error(errorData || 'Failed to create profile');
       }
 
+      
+
       const result = await response.json();
       
-      // update the session with new token
-      await signIn({ newToken: result.accessToken });
+      if (result.accessToken) {
+        console.log('New token received from server:', result.accessToken); // Log new token
+        await signIn({ newToken: result.accessToken });
+        console.log('New token processed by signIn');
+        console.log('New token received and session updated');
+      } else {
+        throw new Error('No access token returned');
+      }
 
       Alert.alert(
         'Success', 
@@ -65,7 +74,7 @@ export default function JoinOrg() {
         [
           {
             text: 'OK',
-            onPress: () => router.navigate(`/organizations/${org}/matches`)
+            onPress: () => router.replace(`/organizations/${org}/matches`)
           }
         ]
       );

@@ -134,6 +134,7 @@ const getOrganizationMembers = async (req, res) => {
 
 // @desc Get if user has joined org, uses userID
 // @route GET /is-joined
+//outdated
 const isJoined = async (req, res) => {
     const { userId, orgId } = req.body;
 
