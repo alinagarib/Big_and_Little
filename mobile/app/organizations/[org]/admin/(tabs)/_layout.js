@@ -1,15 +1,9 @@
 import { Text, TouchableOpacity } from 'react-native';
-import { Tabs, useLocalSearchParams, useRouter } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import useAuth from '@context/useAuth';
 
 export default function OrgLayout() {
   const router = useRouter();
-
-  const { org } = useLocalSearchParams();
-  const { _, profiles } = useAuth();
-
-  const isAdmin = profiles.find(profile => profile.organizationId === org).isOwner;
 
   return (
     <Tabs 
@@ -32,32 +26,17 @@ export default function OrgLayout() {
       }}
     >
       <Tabs.Screen
-        name="profile"
+        name="orgSettings"
         options={{
-          title: 'Profile',
-          tabBarIcon: () => <AntDesign name="user" size={24} />
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Matches',
-          tabBarIcon: () => <AntDesign name="hearto" size={24} />
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
+          title: 'Organization Settings',
           tabBarIcon: () => <AntDesign name="setting" size={24} />
         }}
       />
       <Tabs.Screen
-        name="admin"
+        name="userManagement"
         options={{
-          title: 'Admin',
-          tabBarIcon: () => <AntDesign name="database" size={24} />,
-          ...(!isAdmin && {href: null})
+          title: 'User Management',
+          tabBarIcon: () => <AntDesign name="team" size={24} />
         }}
       />
     </Tabs>

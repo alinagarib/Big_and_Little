@@ -13,6 +13,8 @@ export default function Home() {
   const [orgs, setOrgs] = useState([]);
   const { _, profiles } = useAuth();
 
+  const router = useRouter();
+
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -48,7 +50,12 @@ export default function Home() {
             style={styles.orgContainer}
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
-            renderItem={({ item }) => <OrganizationCard org={item} />}
+            renderItem={({ item }) => 
+              <OrganizationCard
+                org={item} 
+                onPress={() => router.push(`/organizations/${item.id}`)}
+              />
+            }
           />
         </View>
       } 

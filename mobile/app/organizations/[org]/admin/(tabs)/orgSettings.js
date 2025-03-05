@@ -2,9 +2,8 @@ import React, { useState, useRef } from "react";
 import { 
   View, Text, TextInput, TouchableOpacity, Alert, SafeAreaView, StyleSheet, Modal 
 } from "react-native";
-import BottomNavbar from "./components/BottomNavbar";
 
-const OrganizationSettings = () => {
+export default function OrganizationSettings() {
   const [orgName, setOrgName] = useState(""); // Initialize orgName
   const [orgDescription, setOrgDescription] = useState("");
   const [roundsModalVisible, setRoundsModalVisible] = useState(false);
@@ -240,9 +239,6 @@ const OrganizationSettings = () => {
       >
         <Text style={styles.saveButtonText}>Save Settings</Text>
       </TouchableOpacity>
-
-      {/* Bottom Navigation Bar */}
-      <BottomNavbar />
     </SafeAreaView>
   );
 };
@@ -437,5 +433,3 @@ const styles = StyleSheet.create({
     backgroundColor: "black", // Blue for save
   },
 });
-
-export default OrganizationSettings;
