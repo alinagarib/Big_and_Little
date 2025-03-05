@@ -125,7 +125,7 @@ const loginUser = async (req, res) => {
         const profilesArray = profiles.map(profile => ({
             id: profile._id,
             organizationId: profile.organizationId._id,
-            isOwner: profile.organizationId.owner.equals(user._id)
+            isOwner: profile.organizationId.owner.equals(profile._id)
         }));
 
         // Issue JWT

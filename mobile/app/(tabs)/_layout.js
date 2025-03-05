@@ -28,7 +28,7 @@ export default function TabLayout() {
               if (router.canDismiss()) {
                 router.dismiss();
               } else {
-                router.navigate('/');
+                router.replace('/');
               }
             }}>
               <Text style={{ marginLeft: 10 }}>Logout</Text>

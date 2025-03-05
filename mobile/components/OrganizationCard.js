@@ -1,46 +1,27 @@
-import { View, Image, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
-import { router } from "expo-router";
-import useAuth from "@context/useAuth";
+import { Pressable, View, Image, Text, StyleSheet } from "react-native";
 
 /*
   Organization Card Component - Displays organization information for the Explore page
 */
-export default function OrganizationCard({ org }) {
-  const {profiles} = useAuth();
-  const viewOrganization = () => {
-    const isInOrg = profiles.some(profile => profile.organizationId === org.id);
-    console.log(isInOrg);
-    if (isInOrg){
-      router.push(`/organizations/${org.id}/matches`);
-    } 
-    else{
-      router.push({
-        pathname: "/(modal)/join-org",
-        params: { org: org.id }
-      });
-    }
-  };
-
+export default function OrganizationCard({ org, onPress }) {
   return (
-    <TouchableWithoutFeedback onPress={viewOrganization}>
-      <View style={styles.container}>
-        {org.joined && (
-          <View style={styles.joinedMarker}>
-            <Text style={styles.joinedText}>✔</Text>
-          </View>
-        )}
-        <Image style={styles.logo} source={{ uri: org.logo }}/>
-        <View style={styles.textContainer}>
-          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-            {org.name}
-          </Text>
-          <Text style={styles.description} numberOfLines={4} ellipsizeMode="tail">
-            {org.description}
-          </Text>
+    <Pressable style={styles.container} onPress={onPress}>
+      {org.joined && (
+        <View style={styles.joinedMarker}>
+          <Text style={styles.joinedText}>✔</Text>
         </View>
-        <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
+      )}
+      <Image style={styles.logo} source={{ uri: org.logo }}/>
+      <View style={styles.textContainer}>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {org.name}
+        </Text>
+        <Text style={styles.description} numberOfLines={4} ellipsizeMode="tail">
+          {org.description}
+        </Text>
       </View>
-    </TouchableWithoutFeedback>
+      <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
+    </Pressable>
   );
 };
 

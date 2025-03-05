@@ -9,11 +9,11 @@ import { useSession } from "@context/ctx";
 
 // Create button onClick methods
 const login = () => {
-  router.navigate('/login');
+  router.push('/login');
 }
 
 const register = () => {
-  router.navigate('/register');
+  router.push('/register');
 }
 
 /*

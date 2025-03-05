@@ -14,8 +14,8 @@ export default function Explore() {
   const router = useRouter();   
   const [loading, setLoading] = useState(true);
   const [orgs, setOrgs] = useState([]);
-  const { userId } = useAuth();
-  const { session } = useSession();
+  const { userId, profiles } = useAuth();
+
 
   useFocusEffect(
     useCallback(() => {
@@ -31,13 +31,8 @@ export default function Explore() {
             json.map(async (org) => {
               const logoURL = await fetchImage('organization', org.logo);
 
-              const joinedRes = await fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/is-joined`, {
-                method: "POST", 
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, orgId: org.id }) // Send userId and orgId
-              });
+              const joined = profiles.some(profile => profile.organizationId === org.id);
 
-              const { joined } = await joinedRes.json();
               return isMounted ? { ...org, logo: logoURL, joined } : null;
             })
           );
@@ -64,10 +59,9 @@ export default function Explore() {
             style={styles.orgContainer}
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
-            renderItem={({ item }) => {
-              return <OrganizationCard org={item} />
-            }}
-            keyExtractor={(item) => item.id.toString()} />
+            renderItem={({ item }) => <OrganizationCard org={item} />}
+            keyExtractor={item => item.id}
+          />
           <View style={styles.button}>
             <StyledButton
               text="Create New Organization" 

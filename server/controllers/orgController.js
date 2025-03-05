@@ -78,13 +78,11 @@ const createOrganization = async (req, res) => {
 const getOrganizationById = async (req, res) => {
     try {
         const { orgId } = req.params;
-        console.log(orgId);
         if (!orgId) {
             return res.status(400).json({ message: 'id field required.' });
         }
 
-        const org = await Organization.findOne({ _id: orgId }).exec();
-        console.log(org);
+        const org = await Organization.findById(orgId);
         if (org) {
             return res.json({
                 id: org.id,
@@ -112,7 +110,7 @@ const getOrganizationMembers = async (req, res) => {
             return res.status(400).json({ message: 'id field required.' });
         }
 
-        const org = await Organization.findOne({ _id: orgId }).exec();
+        const org = await Organization.findById(orgId);
         if (!org) {
             return res.status(404).send();
         }
@@ -131,29 +129,4 @@ const getOrganizationMembers = async (req, res) => {
 };
 
 
-
-// @desc Get if user has joined org, uses userID
-// @route GET /is-joined
-//outdated
-const isJoined = async (req, res) => {
-    const { userId, orgId } = req.body;
-
-    if (!userId || !orgId) {
-        return res.status(400).json({ message: "Missing userId or orgId" });
-    }
-
-    try {
-        const org = await Organization.findById(orgId);
-        if (!org) {
-            return res.status(404).json({ message: "Organization not found" });
-        }
-
-        const joined = org.members.includes(userId);
-        return res.status(200).json({ joined });
-    } catch (err) {
-        return res.status(500).json({ message: "Server error", error: err.message });
-    }
-};
-
-
-module.exports = { getOrganizations, getOrganizationById, getOrganizationMembers, createOrganization, isJoined };
+module.exports = { getOrganizations, getOrganizationById, getOrganizationMembers, createOrganization };
