@@ -36,7 +36,6 @@ export default function JoinOrg() {
         role: selectedRole
       };
 
-      console.log('Sending profile data:', fullProfileData);
 
       const response = await fetch(
         `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles`,
@@ -60,10 +59,7 @@ export default function JoinOrg() {
       const result = await response.json();
       
       if (result.accessToken) {
-        console.log('New token received from server:', result.accessToken); // Log new token
         await signIn({ newToken: result.accessToken });
-        console.log('New token processed by signIn');
-        console.log('New token received and session updated');
       } else {
         throw new Error('No access token returned');
       }
