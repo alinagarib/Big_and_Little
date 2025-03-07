@@ -1,21 +1,15 @@
-import StyledButton from "@components/StyledButton";
-import { useGlobalSearchParams, useRouter } from "expo-router";
-import { View } from "react-native";
+import { useLocalSearchParams, useGlobalSearchParams, useRouter, useFocusEffect } from "expo-router";
 
 export default function Admin() {
+  const { back } = useLocalSearchParams();
   const { org } = useGlobalSearchParams();
   const router = useRouter();
 
-  return (
-    <View>
-      <StyledButton
-        text="Organization Settings"
-        onClick={() => router.push(`/organizations/${org}/admin/orgSettings`)}
-      />
-      <StyledButton
-        text="User Management"
-        onClick={() => router.push(`/organizations/${org}/admin/userManagement`)}
-      />
-    </View>
-  );
+  useFocusEffect(() => {
+    if (back) {
+      router.replace(`/organizations/${org}/matches`);
+    } else {
+      router.push(`/organizations/${org}/admin/orgSettings`);
+    }
+  });
 }
