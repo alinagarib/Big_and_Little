@@ -1,11 +1,15 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
+import { TouchableOpacity, Text } from 'react-native';
 
 export default function ModalLayout() {
+  const router = useRouter();
+  
   return (
     <Stack screenOptions={{ 
       headerTitleAlign: 'center',
-     }}>
+      headerLeft: () => <TouchableOpacity onPress={router.back}><Text>Back</Text></TouchableOpacity>
+    }}>
       <Stack.Screen 
         name="create-org" 
         options={{ 
