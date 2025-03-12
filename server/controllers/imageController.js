@@ -1,77 +1,77 @@
 const multer = require('multer');
+const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { v4: uuidv4 } = require('uuid');
+const { s3Client } = require('../config/aws');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Image ID returned by mock requests
-const MOCK_IMAGE_ID = "MOCK_IMAGE_ID";
-
-// @desc Upload image to bucket, returning id
-// @route POST /image/upload/:bucket
-// @access Authenticated
-// NOTE: This route is currently mocked
-const uploadImage = [
+const uploadImage = async (req, res) => {
   upload.single('image'),
-  (req, res) => {
-    // Ensure request has Content-Type "multipart/form-data"
-    if (!req.is('multipart/form-data')) {
-      return res.status(400).send('Image upload should be multipart/form-data!');
-    }
+  async (req, res) => {
+    try {
+      if (!req.is('multipart/form-data')) {
+        return res.status(400).send('Image upload should be multipart/form-data!');
+      }
 
-    // Ensure image data was provided
-    const imageData = req.file;
-    if (imageData === undefined) {
-      return res.status(400).send('Please provide image data!');
-    }
+      const imageData = req.file;
+      if (!imageData) {
+        return res.status(400).send('Please provide image data!');
+      }
 
-    // Get bucket for image upload
+      const bucket = req.params.bucket;
+      if (!bucket) {
+        return res.status(400).send('Cannot upload image without specifying bucket!');
+      }
+
+      // Generate unique filename
+      const fileExtension = imageData.originalname.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExtension}`;
+
+      // Upload to S3
+      const command = new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: `${bucket}/${fileName}`,
+        Body: imageData.buffer,
+        ContentType: imageData.mimetype,
+      });
+
+      await s3Client.send(command);
+
+      return res.status(200).json({ id: fileName });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return res.status(500).send('Error uploading image');
+    }
+  }
+};
+
+const getImage = async (req, res) => {
+  try {
     const bucket = req.params.bucket;
-    if (bucket === undefined) {
-      return res.status(400).send('Cannot upload image without specifying bucket!');
+    if (!bucket) {
+      return res.status(400).send('Please provide an image bucket!');
     }
 
-    // TODO: Use image uploading service
-    return res.status(200).send(MOCK_IMAGE_ID);
-  }
-]
-
-// @desc Get image from bucket with ID
-// @route GET /image/:bucket/:id
-// @access Public
-// NOTE: This route is currently mocked
-const getImage = (req, res) => {
-  // Ensure bucket was provided
-  const bucket = req.params.bucket;
-  if (bucket === undefined) {
-    return res.status(400).send('Please provide an image bucket!');
-  }
-
-  // Ensure id was provided
-  const id = req.params.id;
-  if (id === undefined) {
-    return res.status(400).send('Please provide an image ID!');
-  }
-
-  // TODO: Retrieve image from service
-  let image = `Please use ${MOCK_IMAGE_ID}`;
-  if (id === MOCK_IMAGE_ID) {
-    switch (bucket) {
-      case "profile": {
-        image = `https://xsgames.co/randomusers/avatar.php?g=male?${new Date()}`;
-        break;
-      }
-      case "organization": {
-        image = `https://picsum.photos/200?${new Date()}`;
-        break;
-      }
-      default: {
-        image = "Add bucket to mock retrieval service";
-        break;
-      }
+    const id = req.params.id;
+    if (!id) {
+      return res.status(400).send('Please provide an image ID!');
     }
-  }
 
-  return res.status(200).send(image);
-}
+    // Generate presigned URL
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: `${bucket}/${id}`,
+    });
+
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+
+    return res.status(200).json({ url: signedUrl });
+  } catch (error) {
+    console.error('Error getting image:', error);
+    return res.status(500).send('Error retrieving image');
+  }
+};
 
 module.exports = { uploadImage, getImage };
