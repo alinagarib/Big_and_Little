@@ -1,20 +1,24 @@
 import Constants from "expo-constants";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { fetchImage } from "@middleware/fetchImage";
 import useAuth from "@context/useAuth";
 
 import Loading from "@components/Loading";
 import OrganizationCard from "@components/OrganizationCard";
+import StyledButton from "@components/StyledButton";
 import { View, StyleSheet, Text, FlatList } from "react-native";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [orgs, setOrgs] = useState([]);
   const { _, profiles } = useAuth();
-
+  const [haveOrganizations, setHaveOrganizations] = useState(false);
   const router = useRouter();
 
+  const explore = () => {
+    router.push('/explore');
+  } 
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -33,6 +37,7 @@ export default function Home() {
           })
         );
         setOrgs(updatedOrganizations);
+        setHaveOrganizations(updatedOrganizations.length > 0);
         setLoading(false);
       }
 
@@ -42,23 +47,35 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      {loading ?
-        <Loading /> :
+      {loading ? (
+        <Loading /> 
+      ) : (
         <View style={styles.body}>
+          {!haveOrganizations ? (
+            <>
+              <Text style={styles.title}>You have not joined any organizations! Check out Explore to find some!</Text>
+              <View style={styles.button}>
+                <StyledButton text="Explore Page" onClick={explore} />
+              </View>
+            </>
+          ) : (
+            <>
           <Text style={styles.title}>Joined Organizations</Text>
           <FlatList
             style={styles.orgContainer}
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
-            renderItem={({ item }) => 
+            renderItem={({ item }) => (
               <OrganizationCard
                 org={item} 
                 onPress={() => router.push(`/organizations/${item.id}/matches`)}
               />
-            }
+            )}
           />
+          </>
+          )}
         </View>
-      } 
+      )} 
     </View>
   );
 }
@@ -81,5 +98,9 @@ const styles = StyleSheet.create({
   },
   orgContainer: {
     flex: 1
+  },
+  button: {
+    width: '85%',
+    alignSelf: 'center'
   }
 });
