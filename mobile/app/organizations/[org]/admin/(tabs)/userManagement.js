@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Constants from "expo-constants";
 import Loading from "@components/Loading";
+import { useSession } from "@context/ctx";
 import { useGlobalSearchParams, useFocusEffect, useRouter } from 'expo-router';
 
 const MOCK_USERS = [
@@ -21,13 +22,18 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { org } = useGlobalSearchParams();
+  const { session } = useSession();
 
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
       // Get IP that Expo server is using to host app, allows to connect with the backend
       const URI = Constants.expoConfig.hostUri.split(':').shift();
-      fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/organizations/${org}/members`)
+      fetch(`http://${URI}:${process.env.EXPO_PUBLIC_PORT}/organizations/${org}/members`, {
+        headers: {
+          'authorization': `Bearer ${ session }`
+        }
+      })
         .then(res => res.json())
         .then(async (members) => {
           const updatedMembers = [];
