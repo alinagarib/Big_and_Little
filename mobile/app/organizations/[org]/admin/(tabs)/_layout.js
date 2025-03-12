@@ -1,8 +1,9 @@
 import { Text, TouchableOpacity } from 'react-native';
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs, useGlobalSearchParams, useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function OrgLayout() {
+  const { org } = useGlobalSearchParams();
   const router = useRouter();
 
   return (
@@ -13,11 +14,8 @@ export default function OrgLayout() {
         headerLeft: () => {
           return (
             <TouchableOpacity onPress={() => { 
-              if (router.canDismiss()) {
-                router.dismiss();
-              } else {
-                router.replace('/');
-              }
+              router.setParams({ back: true });
+              router.dismissTo(`/organizations/${org}/matches`)
             }}>
               <Text style={{ marginLeft: 10 }}>Back</Text>
             </TouchableOpacity>

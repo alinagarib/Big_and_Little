@@ -30,8 +30,8 @@ export default function Explore() {
         .then(async json => {
           const updatedOrganizations = await Promise.all(
             json.map(async (org) => {
-              const logoURL = await fetchImage('organization', org.logo);
-
+              // Currently, use MOCK_IMAGE_ID instead of ID found in org.logo
+              const logoURL = await fetchImage('organization-images', org.logo);
               const joined = profiles.some(profile => profile.organizationId === org.id);
 
               return isMounted ? { ...org, logo: logoURL, joined } : null;
@@ -74,12 +74,10 @@ export default function Explore() {
             style={styles.orgContainer}
             contentContainerStyle={{ padding: 20, gap: 20 }}
             data={orgs}
-            renderItem={({ item }) => 
-              <OrganizationCard
+            renderItem={({ item }) => <OrganizationCard
                 org={item}
                 onPress={() => handlePress(item.id)}
-              />
-            }
+              />}
             keyExtractor={item => item.id}
           />
           <View style={styles.button}>

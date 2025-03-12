@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useEffect, useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchImage } from "@middleware/fetchImage";
 import useAuth from "@context/useAuth";
 
@@ -19,6 +19,7 @@ export default function Home() {
   const explore = () => {
     router.push('/explore');
   } 
+
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -42,7 +43,7 @@ export default function Home() {
       }
 
       fetchData();
-    }, [])
+    }, [profiles])
   );
 
   return (
@@ -68,7 +69,7 @@ export default function Home() {
             renderItem={({ item }) => (
               <OrganizationCard
                 org={item} 
-                onPress={() => router.push(`/organizations/${item.id}`)}
+                onPress={() => router.push(`/organizations/${item.id}/matches`)}
               />
             )}
           />

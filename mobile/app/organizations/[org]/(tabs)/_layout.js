@@ -39,17 +39,10 @@ export default function OrgLayout() {
         }}
       />
       <Tabs.Screen
-        name="index"
+        name="matches"
         options={{
           title: 'Matches',
           tabBarIcon: () => <AntDesign name="hearto" size={24} />
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: () => <AntDesign name="setting" size={24} />
         }}
       />
       <Tabs.Screen
