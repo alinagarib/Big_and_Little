@@ -51,7 +51,7 @@ export function SessionProvider({ children }) {
     <AuthContext.Provider
       value={{
         signIn: async (payload) => {
-          if(payload.newToken) {
+          if (payload.newToken) {
             setSession(payload.newToken);
             return {
               success: true,
