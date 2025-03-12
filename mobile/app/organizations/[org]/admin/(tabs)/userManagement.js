@@ -18,7 +18,7 @@ const MOCK_USERS = [
   { id: '3', name: 'Alex Johnson', email: 'alex.johnson@example.com', role: 'Member' },
 ];
 
-const UserManagement = () => {
+export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { org } = useGlobalSearchParams();
@@ -183,5 +183,3 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
-
-export default UserManagement;

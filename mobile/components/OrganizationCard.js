@@ -1,16 +1,11 @@
-import { View, Image, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
-import { router } from "expo-router";
+import { Pressable, View, Image, Text, StyleSheet } from "react-native";
 
 /*
   Organization Card Component - Displays organization information for the Explore page
 */
-export default function OrganizationCard({ org }) {
-  const viewOrganization = () => {
-    router.push(`/organizations/${org.id}/matches`)
-  };
-
+export default function OrganizationCard({ org, onPress }) {
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container} onPress={onPress}>
       {org.joined && (
         <View style={styles.joinedMarker}>
           <Text style={styles.joinedText}>✔</Text>
@@ -26,7 +21,7 @@ export default function OrganizationCard({ org }) {
         </Text>
       </View>
       <Text style={styles.size}>{org.size} {org.size == 1 ? "Member" : "Members"}</Text>
-    </View>
+    </Pressable>
   );
 };
 

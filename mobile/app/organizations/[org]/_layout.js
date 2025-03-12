@@ -25,7 +25,8 @@ export default function OrganizationsLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="[org]/(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="admin" options={{ headerShown: false }} />
     </Stack>
   );
 }
