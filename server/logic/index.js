@@ -1,5 +1,5 @@
 const { MongoClient, ObjectId } = require('mongodb');
-const Matcher = require('./matcher');
+const Matcher = require('./matching');
 
 exports.handler = async (event) => {
   const client = new MongoClient(process.env.MONGO_URI);
@@ -41,7 +41,10 @@ exports.handler = async (event) => {
         await db.collection('profiles').updateOne(
           { _id: new ObjectId(mentor._id) },
           { $set: { matches: mentor.matches.map(m => new ObjectId(m._id)) } }
-        );
+        ).catch(error => {
+          console.error('Error updating mentor matches:', error);
+          throw error;
+        });
       }));
 
       // Build mentee to mentor mapping
@@ -57,14 +60,34 @@ exports.handler = async (event) => {
         await db.collection('profiles').updateOne(
           { _id: new ObjectId(menteeId) },
           { $set: { matches: [new ObjectId(mentorId)] } }
-        );
+        ).catch(error => {
+          console.error('Error updating mentee matches:', error);
+          throw error;
+        });
       }));
+
+      // Return the unmatched people
+      const { unmatchedMentees, unmatchedMentors } = matcher.getUnmatched();
+
+      await db.collection('organizations').updateOne(
+        { _id: event.organization },
+        { $set: { unMatched: [...unmatchedMentees.map(m => m._id), ...unmatchedMentors.map(m => m._id)] } }
+      ).catch(error => {
+        console.error('Error updating organization with unmatched users:', error);
+        throw error;
+      });
 
       // Mark event as processed
       await db.collection('events').updateOne(
         { _id: event._id },
         { $set: { matchingRun: true } }
-      );
+      ).catch(error => {
+        console.error('Error marking event as processed:', error);
+        throw error;
+      });
+
+      console.log('Event processed successfully:', event._id);
+      
     }
   } catch (error) {
     console.error('Matching failed:', error);
