@@ -11,7 +11,8 @@ router.route('/create-org')
 
 router.route('/is-joined')
     .post(orgController.isJoined);
-// router.use('/organizations', verifyToken);
+
+    router.use('/organizations', verifyToken);
 
 router.route('/organizations/:orgId')
     .get(orgController.getOrganizationById);
