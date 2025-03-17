@@ -231,4 +231,28 @@ const deleteProfile = async (req, res) => {
   }
 };
 
-module.exports = { createProfile, getProfileByUserId, updateProfile, deleteProfile }
+// Get profile by profile ID
+const getProfileById = async (req, res) => {
+  try {
+    const { profileId } = req.params;
+    console.log("Profile Id:", profileId);
+
+    // Verify required data exists
+    if (!profileId) {
+      return res.status(400).json({ message: 'profileID field required.' });
+    }
+    
+    const profile = await Profile.findById(profileId);
+
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    res.json(profile);
+  } 
+  catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = { createProfile, getProfileByUserId, updateProfile, deleteProfile, getProfileById };

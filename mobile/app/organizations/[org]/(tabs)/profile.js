@@ -163,9 +163,18 @@ export default function ViewProfile() {
   */
   const getProfile = async () => {
     try {
+      // Find the profile that matches the organization ID from params
+      const targetOrgId = params.org;
+      const matchingProfile = profiles.find(profile => profile.organizationId === targetOrgId);
+      
+      if (!matchingProfile) {
+        throw new Error(`No profile found for organization ID: ${targetOrgId}`);
+      }
+      
+      const profileId = matchingProfile.id;
+      
       const URI = Constants.expoConfig.hostUri.split(':').shift();
-      const url = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${userId}`;
-
+      const url = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/profileID/${profileId}`;
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -179,8 +188,6 @@ export default function ViewProfile() {
       }
 
       const profileData = await response.json();
-
-
       setProfileName(profileData.profileName);
       setMajor(profileData.major);
       setDescription(profileData.description);

@@ -14,4 +14,7 @@ router.route('/profiles/:userId')
   .put(profileController.updateProfile)
   .delete(profileController.deleteProfile);
 
+router.route('/profiles/profileID/:profileId')
+  .get(profileController.getProfileById);
+
 module.exports = router;
