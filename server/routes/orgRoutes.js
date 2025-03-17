@@ -9,8 +9,6 @@ router.route('/organizations')
 router.route('/create-org')
     .post(orgController.createOrganization);
 
-// router.use('/organizations', verifyToken);
-
 router.route('/organizations/:orgId')
     .get(orgController.getOrganizationById);
 
