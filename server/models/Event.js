@@ -7,7 +7,7 @@ const eventSchema = new Schema({
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
     startTime: Date,
     endTime: Date,
-    matchingRun: Boolean
+    matchingRun: Boolean,
   });
 
 module.exports = mongoose.model('Event', eventSchema);

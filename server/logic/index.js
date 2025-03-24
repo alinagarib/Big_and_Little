@@ -14,7 +14,21 @@ exports.handler = async (event) => {
       .toArray();
 
     for (const event of events) {
+      // Get the organization associated with the event
+      const organization = await db.collection('organizations').findOne({ 
+        _id: event.organization 
+      });
+
+      if (!organization) {
+        console.log('Organization not found for event:', event._id);
+        continue;
+      }
+
+      // Check if this is the final round (0-indexed)
+      const isFinalRound = organization.currentRound >= organization.rounds - 1;
+
       // Fetches bigs and littles if an event is supposed to be triggered
+      if (isFinalRound) {
       const [mentors, mentees] = await Promise.all([
         db.collection('profiles').find({
           organizationId: event.organization, 
@@ -29,11 +43,12 @@ exports.handler = async (event) => {
         throw error;
       });
 
-      const matcher = new Matcher(mentors, mentees);
       if (mentors.length === 0 || mentees.length === 0) {
         console.log('No mentors or mentees found for event:', event._id);
         continue; 
       }
+
+      const matcher = new Matcher(mentors, mentees);
       matcher.run();
 
       // Update mentors' matches
@@ -77,7 +92,21 @@ exports.handler = async (event) => {
         throw error;
       });
 
-      // Mark event as processed
+    } else {
+      // If not final round, clear the rankings for the next round
+      await db.collection('profiles').updateMany(
+        { organizationId: event.organization },
+        { $set: { rankings: [] } }
+      );
+
+      // Increment current round
+      await db.collection('organizations').updateOne(
+        { _id: event.organization },
+        { $inc: { currentRound: 1 } }
+      );
+    }
+
+      // Mark event as processed, always runs
       await db.collection('events').updateOne(
         { _id: event._id },
         { $set: { matchingRun: true } }
