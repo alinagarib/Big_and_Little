@@ -153,7 +153,6 @@ const updateProfile = async (req, res) => {
     }
 
     const existingProfile = await Profile.findOne({ userId: userId });
-    console.log("Existing Profile Found:", existingProfile);
 
     if (!existingProfile) {
       return res.status(404).json({ message: 'Profile not found' });
@@ -234,7 +233,6 @@ const deleteProfile = async (req, res) => {
 const getProfileById = async (req, res) => {
   try {
     const { profileId } = req.params;
-    console.log("Profile Id:", profileId);
 
     // Verify required data exists
     if (!profileId) {
@@ -270,12 +268,10 @@ const updateProfileById = async (req, res) => {
     }
 
     const existingProfile = await Profile.findById(profileId);
-    console.log("Existing Profile Found:", existingProfile);
 
     if (!existingProfile) {
       return res.status(404).json({ message: 'Profile not found' });
     }
-    console.log("Existing Profile Found:", existingProfile);
 
     const profileObject = { };
 
@@ -292,8 +288,6 @@ const updateProfileById = async (req, res) => {
       { $set: profileObject },  // Update fields
       { new: true, runValidators: true }  // Return updated profile
     );
-
-    console.log("Updated Profile:", updatedProfile);
 
     if (!updatedProfile) {
       return res.status(404).json({ message: 'Profile not found' });
