@@ -140,7 +140,6 @@ const getProfileByUserId = async (req, res) => {
 // Updates profile
 const updateProfile = async (req, res) => {
   try {
-
     const { userId } = req.params;
 
     const { interests, major, description, profileName, images, profilePicture, numberOfLittles } = req.body;
@@ -255,4 +254,56 @@ const getProfileById = async (req, res) => {
   }
 };
 
-module.exports = { createProfile, getProfileByUserId, updateProfile, deleteProfile, getProfileById };
+// Updates profile
+const updateProfileById = async (req, res) => {
+  try {
+    const { profileId } = req.params;
+
+    const { interests, major, description, profileName, images, profilePicture, numberOfLittles } = req.body;
+
+    if (!profileId) {
+      return res.status(400).json({ message: "Profile ID is required" });
+    }
+
+    if (images && images.length > 3) {
+      return res.status(400).json({ message: 'Maximum of 3 pictures allowed' });
+    }
+
+    const existingProfile = await Profile.findById(profileId);
+    console.log("Existing Profile Found:", existingProfile);
+
+    if (!existingProfile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+    console.log("Existing Profile Found:", existingProfile);
+
+    const profileObject = { };
+
+    if(interests) profileObject.interests = interests;
+    if (major) profileObject.major = major;
+    if (profileName) profileObject.profileName = profileName;
+    if (description != undefined) profileObject.description = description; 
+    if (images) profileObject.images = images; 
+    if (profilePicture != undefined) profileObject.profilePicture = profilePicture;
+    if (numberOfLittles != undefined) profileObject.numberOfLittles = numberOfLittles; //checking undefined so it works if numberOfLittles is 0
+
+    const updatedProfile = await Profile.findByIdAndUpdate(
+      profileId,  // Find profile by _id
+      { $set: profileObject },  // Update fields
+      { new: true, runValidators: true }  // Return updated profile
+    );
+
+    console.log("Updated Profile:", updatedProfile);
+
+    if (!updatedProfile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    res.json(updatedProfile);
+  } 
+  catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = { createProfile, getProfileByUserId, updateProfile, deleteProfile, getProfileById, updateProfileById };

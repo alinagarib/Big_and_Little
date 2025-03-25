@@ -89,6 +89,15 @@ export default function ViewProfile() {
   */
   const saveProfile = async () => {
     try {
+      const targetOrgId = params.org;
+      const matchingProfile = profiles.find(profile => profile.organizationId === targetOrgId);
+      
+      if (!matchingProfile) {
+        throw new Error(`No profile found for organization ID: ${targetOrgId}`);
+      }
+      
+      const profileId = matchingProfile.id;
+
       // Upload images first
       const uploadedImageUrls = [];
 
@@ -119,7 +128,7 @@ export default function ViewProfile() {
       }
 
       // Update profile with new image URLs
-      /*const payload = {
+      const payload = {
         interests: interests,
         major: major,
         description: description,
@@ -130,7 +139,7 @@ export default function ViewProfile() {
       };
 
       const URI = Constants.expoConfig.hostUri.split(':').shift();
-      const URL = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${userId}`;
+      const URL = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/profileID/${profileId}`;
 
       const response = await fetch(URL, {
         method: "PUT",
@@ -143,7 +152,7 @@ export default function ViewProfile() {
 
       if (!response.ok) {
         throw new Error('Failed to update profile');
-      }*/
+      }
 
       // Clear temporary images after successful save
       setTempImages([]);
