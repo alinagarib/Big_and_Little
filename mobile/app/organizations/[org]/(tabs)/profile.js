@@ -139,7 +139,7 @@ export default function ViewProfile() {
       };
 
       const URI = Constants.expoConfig.hostUri.split(':').shift();
-      const URL = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/profileID/${profileId}`;
+      const URL = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${profileId}`;
 
       const response = await fetch(URL, {
         method: "PUT",
@@ -183,7 +183,7 @@ export default function ViewProfile() {
       const profileId = matchingProfile.id;
       
       const URI = Constants.expoConfig.hostUri.split(':').shift();
-      const url = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/profileID/${profileId}`;
+      const url = `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/profiles/${profileId}`;
       const response = await fetch(url, {
         method: "GET",
         headers: {
