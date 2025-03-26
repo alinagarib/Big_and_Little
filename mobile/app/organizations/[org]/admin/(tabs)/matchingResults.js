@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { 
     View, Text, SafeAreaView, TouchableOpacity, TextInput, FlatList, StyleSheet 
 } from "react-native";
-import BottomNavbar from "./components/BottomNavbar"; // Make sure this exists or your app will break
+import BottomNavbar from "./components/bottomNavbar"; // Make sure this exists or your app will break
 
 const MatchingResults = () => {
     const [search, setSearch] = useState("");
