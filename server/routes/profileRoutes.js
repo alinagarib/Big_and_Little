@@ -9,8 +9,8 @@ router.use('/profiles', verifyToken);
 router.route('/profiles')
   .post(profileController.createProfile);
 
-router.route('/profiles/:userId')
-  .get(profileController.getProfileByUserId)
+router.route('/profiles/:profileId')
+  .get(profileController.getProfile)
   .put(profileController.updateProfile)
   .delete(profileController.deleteProfile);
 
