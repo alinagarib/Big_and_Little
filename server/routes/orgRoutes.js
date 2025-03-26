@@ -27,4 +27,7 @@ router.route('/organizations/:orgId/matches/swipeLeft/:profileId')
 router.route('/organizations/:orgId/matches/swipeRight/:profileId')
   .post(orgController.swipeRight);
 
+router.route('/organizations/:joinCode/get-org')
+    .get(orgController.getOrganizationByJoinCode);
+
 module.exports = router;

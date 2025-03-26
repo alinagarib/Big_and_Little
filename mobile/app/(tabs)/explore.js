@@ -82,12 +82,22 @@ export default function Explore() {
             }
             keyExtractor={item => item._id}
           />
-          <View style={styles.button}>
-            <StyledButton
-              text="Create New Organization" 
-              onClick={() => { 
-                router.push("/create-org");           
-              }} />
+          <View style={styles.buttonContainer}>
+            <View style={styles.halfWidthButton}>
+              <StyledButton
+                text="Create New Organization" 
+                onClick={() => { 
+                  router.push("/create-org");           
+                }} />
+            </View>
+            <View style={styles.halfWidthButton}>
+              <StyledButton
+                text="Join Organization with Code" 
+                onClick={() => { 
+                  router.push("/join-code");
+                }} 
+              />
+            </View>
           </View>
         </View>
       } 
@@ -110,5 +120,13 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 20
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    padding: 20,
+    justifyContent: 'space-between', 
+  },
+  halfWidthButton: {
+    width: '50%', 
   }
 });

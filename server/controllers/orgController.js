@@ -87,6 +87,30 @@ const getOrganizationById = async (req, res) => {
   }
 };
 
+const getOrganizationByJoinCode = async (req, res) => {
+    try {
+        const { joinCode } = req.params;
+        if (!joinCode) {
+            return res.status(400).json({ message: 'joinCode field required.' });
+        }
+
+        const org = await Organization.findOne({ joinCode });
+        if (org) {
+            return res.json({
+                id: org.id,
+                name: org.name,
+                description: org.description,
+                logo: org.logo,
+                size: org.members.length
+            });
+        }
+
+        return res.status(404).send();
+    }
+    catch (err) {
+        return res.status(500).send();
+    }
+};
 // @desc Get a specific organizations members
 // @route GET /organizations/:orgId/members
 // @access Private
@@ -243,6 +267,7 @@ module.exports = {
   getOrganizationById,
   getOrganizationMembers,
   createOrganization,
+  getOrganizationByJoinCode,
   getMatchProfiles,
   swipeLeft,
   swipeRight
