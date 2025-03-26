@@ -33,7 +33,7 @@ export default function Home() {
             const org = await res.json();
             return {
               ...org,
-              logo: await fetchImage('organization', org.logo)
+              logo: await fetchImage('organization-images', org.logo)
             };
           })
         );
