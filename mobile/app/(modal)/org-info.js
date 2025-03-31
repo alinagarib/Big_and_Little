@@ -1,39 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, Image, Alert, TextInput } from 'react-native';
 import { fetchImage } from '@middleware/fetchImage';
 import Constants from 'expo-constants';
-import StyledButton from './StyledButton';  // Assuming StyledButton is a custom component
+import StyledButton from '@components/StyledButton';  
+import { useSession } from '@context/ctx';
 
 export default function OrgInfo() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const [orgId, setOrgId] = useState(null);
   const [organization, setOrg] = useState(null);
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { session } = useSession();
 
   useEffect(() => {
-    if (router.query?.org) {
-      setOrgId(router.query.org);
+    if (params?.org) {
+      setOrgId(params?.org);
+    } else {
+        setLoading(false);
+        setError('No organization specified');
     }
-  }, [router.query]);
+  }, [params]);
 
   useEffect(() => {
-    if (orgId) {
-      const fetchOrgDetails = async () => {
-        setLoading(true); 
-        try {
-          const URI = Constants.expoConfig.hostUri.split(':').shift();
-          const response = await fetch(
-            `http://${URI}:${process.env.EXPO_PUBLIC_PORT}/organizations/${orgId}`
-          );
-          const orgData = await response.json();
+    if(!orgId) return;
+    const fetchOrgDetails = async () => {
+      setLoading(true); 
+      setError(null);
+      try {
+        const URI = Constants.expoConfig.hostUri.split(':').shift() || 'localhost';
+        const PORT = process.env.EXPO_PUBLIC_PORT || '3000';
+        const response = await fetch(
+            `http://${URI}:${PORT}/organizations/${orgId}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session}`,
+              },
+            }
+        );
+        if (!response.ok){
+          const errorText =  await response.text();
+          throw new Error('Server returned ${response.status}: ${errorText}');
+        }
+        const orgData = await response.json();
 
-          if (orgData) {
-            const logoURL = await fetchImage('organization', orgData.logo);
-            setOrg({ ...orgData, logo: logoURL });
+        if (orgData) {
+          let logoUrl = null;
+          if (orgData.logo) {
+            try{
+              logoUrl = await fetchImage('organization', orgData.logo);
+            } catch (err) {
+              throw new Error('Could not load logo image:', err);
+            }
+          }
+          //const logoURL = await fetchImage('organization', orgData.logo);
+          setOrg({ ...orgData, logo: logoUrl });
           } else {
-            throw new Error('Organization not found');
+            throw new Error('Organization data is empty');
           }
         } catch (err) {
           console.error('Error fetching organization details:', err);
@@ -44,8 +72,8 @@ export default function OrgInfo() {
       };
 
       fetchOrgDetails();
-    }
-  }, [orgId]);
+    
+  }, [orgId,session]);
 
   const handleJoinOrg = () => {
     if (organization?.private) {
