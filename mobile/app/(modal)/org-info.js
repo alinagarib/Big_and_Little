@@ -75,18 +75,6 @@ export default function OrgInfo() {
     
   }, [orgId,session]);
 
-  const handleJoinOrg = () => {
-    if (organization?.private) {
-      if (joinCode === organization.joinCode) {
-        Alert.alert('Success', 'Successfully joined the organization!');
-      } else {
-        Alert.alert('Error', 'Invalid join code. Please try again.');
-      }
-    } else {
-      Alert.alert('Success', 'Successfully joined the organization!');
-    }
-  };
-
   if (loading) {
     return <Text>Loading...</Text>; 
   }
@@ -109,10 +97,16 @@ export default function OrgInfo() {
             value={joinCode}
             onChangeText={setJoinCode}
           />
-          <StyledButton text="Join Organization" onClick={handleJoinOrg} />
+          <StyledButton 
+          text="Join Organization" 
+          onClick={() => router.push('/join-org')} 
+          />
         </>
       ) : (
-        <StyledButton text="Join Organization" onClick={handleJoinOrg} />
+        <StyledButton 
+        text="Join Organization" 
+        onClick={() => router.push('/join-org')}
+        />
       )}
       <View style={styles.backButton}>
       <StyledButton
