@@ -31,8 +31,8 @@ export default function OrgInfo() {
       setLoading(true); 
       setError(null);
       try {
-        const URI = Constants.expoConfig.hostUri.split(':').shift() || 'localhost';
-        const PORT = process.env.EXPO_PUBLIC_PORT || '3000';
+        const URI = Constants.expoConfig.hostUri.split(':').shift();
+        const PORT = process.env.EXPO_PUBLIC_PORT;
         const response = await fetch(
             `http://${URI}:${PORT}/organizations/${orgId}`,
             {
@@ -114,12 +114,14 @@ export default function OrgInfo() {
       ) : (
         <StyledButton text="Join Organization" onClick={handleJoinOrg} />
       )}
-
+      <View style={styles.backButton}>
       <StyledButton
         text="Back to Explore"
         onClick={() => router.push('/explore')}
-        style={styles.backButton}
+        
       />
+      </View>
+      
     </View>
   );
 }
