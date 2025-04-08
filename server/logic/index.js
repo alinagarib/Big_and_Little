@@ -1,6 +1,67 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const Matcher = require('./matching');
 
+
+/**
+ * Calculates weighted preferences for profiles based on swipes and round weights
+ * @param {Array} profiles - Array of mentor or mentee profiles
+ * @param {String} targetRole - 'Big' or 'Little' - which role we're calculating preferences for
+ * @param {Object} organization - The organization document with roundWeighting
+ * @param {Array} allMentors - All mentor profiles for reference
+ * @param {Array} allMentees - All mentee profiles for reference
+ * @returns {Array} - Profiles with calculated preferences
+ */
+
+const calculateWeightedPreferences = (profiles, targetRole, organization, allMentors, allMentees) => {
+  const scoreMap = new Map();
+      
+  // First pass: Calculate all scores
+  profiles.forEach(profile => {
+    profile.rounds.forEach((round, roundIndex) => {
+      const weight = organization.roundWeighting[roundIndex] || 1;
+      round.swipesRight.forEach(targetId => {
+        const key = targetId.toString();
+        scoreMap.set(key, (scoreMap.get(key) || 0) + weight);
+      });
+    });
+  });
+
+  // Second pass: Generate sorted preferences
+  return profiles.map(profile => {
+    const preferences = [];
+    const seen = new Set();
+    
+    // Process rounds in reverse to prioritize later rounds
+    [...profile.rounds].reverse().forEach((round, reverseIndex) => {
+      const roundIndex = profile.rounds.length - 1 - reverseIndex;
+      const weight = organization.roundWeighting[roundIndex];
+      
+      round.swipesRight.forEach(targetId => {
+        const target = allMentors.concat(allMentees).find(p => 
+          p._id.equals(targetId) && p.role === targetRole
+        );
+        
+        if (target && !seen.has(targetId.toString())) {
+          seen.add(targetId.toString());
+          preferences.push({
+            id: targetId,
+            score: scoreMap.get(targetId.toString()) || 0,
+            roundWeight: weight
+          });
+        }
+      });
+    });
+
+    // Sort by score (descending), then by round weight (descending)
+    return {
+      ...profile,
+      preferences: preferences
+        .sort((a, b) => b.score - a.score || b.roundWeight - a.roundWeight)
+        .map(p => p.id)
+    };
+  });
+};
+
 exports.handler = async (event) => {
   const client = new MongoClient(process.env.MONGO_URI);
   try {
@@ -14,7 +75,13 @@ exports.handler = async (event) => {
       .toArray();
 
     for (const event of events) {
-      // Get the organization associated with the event
+      // Update organization matching status
+      await db.collection('organizations').updateOne(
+        { _id: event.organization },
+        { $set: { isMatching: now >= event.startTime && now <= event.endTime } }
+      );
+
+      // Find the organization for the event
       const organization = await db.collection('organizations').findOne({ 
         _id: event.organization 
       });
@@ -48,7 +115,10 @@ exports.handler = async (event) => {
         continue; 
       }
 
-      const matcher = new Matcher(mentors, mentees);
+      const mentorsWithPrefs = calculateWeightedPreferences(allMentors, 'Big', organization, allMentors, allMentees);
+      const menteesWithPrefs = calculateWeightedPreferences(allMentees, 'Little', organization, allMentors, allMentees);
+
+      const matcher = new Matcher(mentorsWithPrefs, menteesWithPrefs);
       matcher.run();
 
       // Update mentors' matches
@@ -92,20 +162,6 @@ exports.handler = async (event) => {
         throw error;
       });
 
-    } else {
-      // If not final round, clear the rankings for the next round
-      await db.collection('profiles').updateMany(
-        { organizationId: event.organization },
-        { $set: { rankings: [] } }
-      );
-
-      // Increment current round
-      await db.collection('organizations').updateOne(
-        { _id: event.organization },
-        { $inc: { currentRound: 1 } }
-      );
-    }
-
       // Mark event as processed, always runs
       await db.collection('events').updateOne(
         { _id: event._id },
@@ -114,6 +170,16 @@ exports.handler = async (event) => {
         console.error('Error marking event as processed:', error);
         throw error;
       });
+
+    } else {
+
+      // Increment current round
+      await db.collection('organizations').updateOne(
+        { _id: event.organization },
+        { $inc: { currentRound: 1 } }
+      );
+
+    }
 
       console.log('Event processed successfully:', event._id);
       
