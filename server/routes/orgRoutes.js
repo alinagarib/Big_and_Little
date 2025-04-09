@@ -10,7 +10,8 @@ router.route('/create-org')
   .post(orgController.createOrganization);
 
 router.route('/organizations/:orgId')
-  .get(orgController.getOrganizationById);
+  .get(orgController.getOrganizationById)
+  .put(orgController.updateOrganizationById);
 
 router.route('/organizations/:orgId/members')
   .get(orgController.getOrganizationMembers);
