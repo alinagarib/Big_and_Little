@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from "expo-router";
 import Constants from "expo-constants";
 
-import { fetchImage } from "@middleware/fetchImage";
+import { fetchProfileImage } from "@middleware/fetchImage";
 import { useSession } from "@context/ctx";
 
 import Loading from '@components/Loading';
@@ -53,7 +53,7 @@ export default function Matches() {
       const profiles = await Promise.all(
         matchInfo.profiles.map(async profile => {
           const updatedImages = await Promise.all(
-            profile.images.map(async imageId => fetchImage('profile-images', imageId))
+            profile.images.map(async imageId => fetchProfileImage(profile._id, imageId, org, session))
           );
           return { ...profile, images: updatedImages };
         })
