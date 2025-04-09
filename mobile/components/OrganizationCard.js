@@ -1,10 +1,12 @@
 import { Pressable, View, Image, Text, StyleSheet } from "react-native";
+const DEFAULT_LOGO = require('../assets/DEFAULT_LOGO.png');
 
 /*
   Organization Card Component - Displays organization information for the Explore page
 */
 export default function OrganizationCard({ org, onPress }) {
   const size = org.members.length;
+  const imageSource = org.logo == ("DEFAULT_LOGO_ID" || null)  ? { uri: org.logo} : DEFAULT_LOGO;
 
   return (
     <Pressable style={styles.container} onPress={onPress}>
@@ -13,7 +15,7 @@ export default function OrganizationCard({ org, onPress }) {
           <Text style={styles.joinedText}>✔</Text>
         </View>
       )}
-      <Image style={styles.logo} source={{ uri: org.logo }}/>
+      <Image style={styles.logo} source={imageSource}/>
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
           {org.name}
