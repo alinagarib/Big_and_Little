@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { fetchImage } from "@middleware/fetchImage";
+import { fetchOrganizationImage } from "@middleware/fetchImage";
 import useAuth from "@context/useAuth";
 
 import Loading from "@components/Loading";
@@ -33,7 +33,7 @@ export default function Home() {
             const org = await res.json();
             return {
               ...org,
-              logo: await fetchImage('organization', org.logo)
+              logo: await fetchOrganizationImage('organization-images', org.logo, org._id)
             };
           })
         );
