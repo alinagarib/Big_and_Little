@@ -6,7 +6,7 @@ const DEFAULT_LOGO = require('../assets/DEFAULT_LOGO.png');
 */
 export default function OrganizationCard({ org, onPress }) {
   const size = org.members.length;
-  const imageSource = org.logo == ("DEFAULT_LOGO_ID" || null)  ? { uri: org.logo} : DEFAULT_LOGO;
+  const imageSource = (org.logo == "DEFAULT_LOGO_ID" || org.logo == null) ? DEFAULT_LOGO : { uri: org.logo};
 
   return (
     <Pressable style={styles.container} onPress={onPress}>
