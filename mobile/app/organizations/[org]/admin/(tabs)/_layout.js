@@ -37,6 +37,13 @@ export default function OrgLayout() {
           tabBarIcon: () => <AntDesign name="team" size={24} />
         }}
       />
+      <Tabs.Screen
+        name="matchingResults"
+        options={{
+          title: 'Matching Results',
+          tabBarIcon: () => <AntDesign name="barschart" size={24} />
+        }}
+      />
     </Tabs>
   )
 }
