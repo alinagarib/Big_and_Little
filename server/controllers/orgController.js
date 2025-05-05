@@ -9,11 +9,11 @@ const generateUniqueJoinCode = async () => {
   let isUnique = false;
 
   while (!isUnique) {
-    joinCode = crypto.randomInt(100000, 999999); 
+    joinCode = crypto.randomInt(100000, 999999);
 
     const existingOrg = await Organization.findOne({ joinCode }).exec();
     if (!existingOrg) {
-      isUnique = true; 
+      isUnique = true;
     }
   }
   return joinCode;
@@ -88,28 +88,28 @@ const getOrganizationById = async (req, res) => {
 };
 
 const getOrganizationByJoinCode = async (req, res) => {
-    try {
-        const { joinCode } = req.params;
-        if (!joinCode) {
-            return res.status(400).json({ message: 'joinCode field required.' });
-        }
-
-        const org = await Organization.findOne({ joinCode });
-        if (org) {
-            return res.json({
-                id: org.id,
-                name: org.name,
-                description: org.description,
-                logo: org.logo,
-                size: org.members.length
-            });
-        }
-
-        return res.status(404).send();
+  try {
+    const { joinCode } = req.params;
+    if (!joinCode) {
+      return res.status(400).json({ message: 'joinCode field required.' });
     }
-    catch (err) {
-        return res.status(500).send();
+
+    const org = await Organization.findOne({ joinCode });
+    if (org) {
+      return res.json({
+        id: org.id,
+        name: org.name,
+        description: org.description,
+        logo: org.logo,
+        size: org.members.length
+      });
     }
+
+    return res.status(404).send();
+  }
+  catch (err) {
+    return res.status(500).send();
+  }
 };
 // @desc Get a specific organizations members
 // @route GET /organizations/:orgId/members
@@ -146,22 +146,22 @@ const getMatchProfiles = async (req, res) => {
   const { orgId } = req.params;
   const userProfiles = req.profiles;
   if (!orgId) return res.status(400).send('Organization ID is required!');
-  
+
   const org = await Organization.findById(orgId);
   if (!org) return res.status(400).send(`No organization with ID ${orgId} exists!`);
   if (!org.isMatching) return res.status(400).send('Organization is not currently matching!');
-  
+
   const userProfileId = userProfiles.find(p => p.organizationId === orgId)?.id;
   if (!userProfileId) return res.status(400).send('User is not a member of the organization!');
-  
+
   const userProfile = await Profile.findById(userProfileId);
-  
+
   // Get all members in the organization
   let profiles = await Profile.find({ _id: { $in: org.members } }).exec();
-  
+
   // Get Bigs for Littles, and Littles for Bigs
   profiles = profiles.filter(p => p.role !== userProfile.role);
-  
+
   // Filter out members that user has already swiped on
   const round = userProfile.rounds[org.currentRound];
   let swipes = [];
@@ -172,7 +172,7 @@ const getMatchProfiles = async (req, res) => {
 
   // Determine number of swipes user has left
   const remainingSwipes = org.swipesPerRound[org.currentRound] - swipes.length;
-  
+
   return res.json({
     "profiles": profiles,
     "swipes": remainingSwipes
@@ -193,7 +193,7 @@ const swipeLeft = async (req, res) => {
 
   const userProfileId = userProfiles.find(p => p.organizationId === orgId).id;
   const userProfile = await Profile.findById(userProfileId);
-  
+
   let round = userProfile.rounds[org.currentRound];
   if (!round) {
     round = {
@@ -201,14 +201,14 @@ const swipeLeft = async (req, res) => {
       swipesRight: []
     };
   }
-  
+
   // Check validity of swipe
   if (round.swipesLeft.length + round.swipesRight.length === org.swipesPerRound[org.currentRound]) {
     return res.status(400).send('User has no more swipes!');
   } else if (round.swipesLeft.includes(profileId) || round.swipesRight.includes(profileId)) {
     return res.status(400).send('User has already swiped on this profile!');
   }
-  
+
   const profile = await Profile.findById(profileId);
   if (!profile) return res.status(400).send(`Profile with ID ${profileId} does not exist!`);
   round.swipesLeft.push(profile._id);
@@ -216,7 +216,7 @@ const swipeLeft = async (req, res) => {
   // Save
   userProfile.rounds[org.currentRound] = round;
   await userProfile.save();
-  
+
   return res.status(200).send();
 }
 
@@ -234,7 +234,7 @@ const swipeRight = async (req, res) => {
 
   const userProfileId = userProfiles.find(p => p.organizationId === orgId).id;
   const userProfile = await Profile.findById(userProfileId);
-  
+
   let round = userProfile.rounds[org.currentRound];
   if (!round) {
     round = {
@@ -242,14 +242,14 @@ const swipeRight = async (req, res) => {
       swipesRight: []
     };
   }
-  
+
   // Check validity of swipe
   if (round.swipesLeft.length + round.swipesRight.length === org.swipesPerRound[org.currentRound]) {
     return res.status(400).send('User has no more swipes!');
   } else if (round.swipesLeft.includes(profileId) || round.swipesRight.includes(profileId)) {
     return res.status(400).send('User has already swiped on this profile!');
   }
-  
+
   const profile = await Profile.findById(profileId);
   if (!profile) return res.status(400).send(`Profile with ID ${profileId} does not exist!`);
   round.swipesRight.push(profile._id);
@@ -261,10 +261,33 @@ const swipeRight = async (req, res) => {
   return res.status(200).send();
 }
 
+const updateOrganizationById = async (req, res) => {
+  try {
+    console.log('updating...');
+    console.log(req.body);
+    console.log(req.params.orgId);
+    const organization = await Organization.findByIdAndUpdate(req.params.orgId, req.body, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!organization) {
+      throw new Error('Organization not found');
+    }
+    console.log('update success');
+    return res.status(200);
+  }
+  catch (err) {
+    console.log('update fail');
+    return res.status(400).json({ error: err.message });
+  }
+}
+
 
 module.exports = {
   getOrganizations,
   getOrganizationById,
+  updateOrganizationById,
   getOrganizationMembers,
   createOrganization,
   getOrganizationByJoinCode,

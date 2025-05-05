@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { 
     View, Text, SafeAreaView, TouchableOpacity, TextInput, FlatList, StyleSheet 
 } from "react-native";
-import BottomNavbar from "./components/BottomNavbar"; // Make sure this exists or your app will break
 
 const MatchingResults = () => {
     const [search, setSearch] = useState("");
@@ -22,14 +21,6 @@ const MatchingResults = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Top Navbar */}
-            <View style={styles.topNavbar}>
-                <TouchableOpacity style={styles.backButton}>
-                    <Text style={styles.backCaret}>❮</Text>
-                </TouchableOpacity>
-                <Text style={styles.topNavbarText}>Matching Results</Text>
-            </View>
-
             {/* Show "Matching in Progress" if matching isn't done yet */}
             {!matchingDone ? (
                 <View style={styles.centerMessage}>
@@ -79,8 +70,6 @@ const MatchingResults = () => {
                     />
                 </>
             )}
-            {/* Bottom Navbar */}
-            <BottomNavbar />
         </SafeAreaView>
     );
 };
@@ -91,20 +80,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "white",
         paddingTop: 50,
-    },
-    topNavbar: {
-        flexDirection: "row",
-        alignItems: "center",
-        height: 60,
-        borderBottomWidth: 1,
-        borderColor: "#ddd",
-        paddingHorizontal: 15,
-    },
-    topNavbarText: {
-        flex: 1,
-        textAlign: "center",
-        fontSize: 20,
-        fontWeight: "bold",
     },
     backButton: {
         padding: 10,

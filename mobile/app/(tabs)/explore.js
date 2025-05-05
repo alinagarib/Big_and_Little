@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { fetchImage } from "@middleware/fetchImage";
+import { fetchOrganizationImage } from "@middleware/fetchImage";
 
 import Loading from "@components/Loading";
 import OrganizationCard from "@components/OrganizationCard";
@@ -31,7 +31,7 @@ export default function Explore() {
           const updatedOrganizations = await Promise.all(
             json.map(async (org) => {
               // Currently, use MOCK_IMAGE_ID instead of ID found in org.logo
-              const logoURL = await fetchImage('organization-images', org.logo);
+              const logoURL = await fetchOrganizationImage('organization-images', org.logo, org._id);
               const joined = profiles.some(profile => profile.organizationId === org.id);
 
               return isMounted ? { ...org, logo: logoURL, joined } : null;
@@ -59,9 +59,15 @@ export default function Explore() {
     } 
     else{
       router.push({
+        pathname: "/org-info",
+        params: { org: orgId }
+      });
+      /*
+      router.push({
         pathname: "/join-org",
         params: { org: orgId }
       });
+      */
     }
   }
 

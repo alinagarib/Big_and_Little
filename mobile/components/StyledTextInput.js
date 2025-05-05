@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
     borderColor: 'lightgrey',
     borderRadius: 4,
     fontSize: 20,
-    padding: 5
+    padding: 5,
+    fontFamily: 'Inter'
   },
   helperText: {
     marginTop: -5,
